@@ -3,6 +3,7 @@ plugins {
     id 'org.springframework.boot' version '3.2.2'
     id 'io.spring.dependency-management' version '1.1.4'
     id 'org.asciidoctor.jvm.convert' version '3.3.2'
+    id 'jacoco'
 }
 
 group = 'org.mockInvestment'
@@ -16,6 +17,7 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    asciidoctorExt
 }
 
 repositories {
@@ -41,14 +43,63 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
     testImplementation 'org.springframework.security:spring-security-test'
+    asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+    testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'io.rest-assured:spring-mock-mvc'
 }
 
 tasks.named('test') {
+    finalizedBy jacocoTestReport
     outputs.dir snippetsDir
     useJUnitPlatform()
 }
 
 tasks.named('asciidoctor') {
     inputs.dir snippetsDir
+    configurations 'asciidoctorExt'
     dependsOn test
+}
+
+bootJar {
+    dependsOn asciidoctor
+    from ("${asciidoctor.outputDir}") {
+        into 'static/docs'
+    }
+}
+
+task copyDocument(type: Copy) { // 생성된 html 파일을 옮긴다
+    dependsOn asciidoctor // Gradle의 asciidoctor Task 이후 수행
+    from file("${asciidoctor.outputDir}")
+    into file("src/main/resources/static/docs")
+}
+
+build {
+    dependsOn copyDocument // build 이후 html 파일 복사
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = true
+    }
+    finalizedBy 'jacocoTestCoverageVerification'
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = 'CLASS'
+            enabled = true
+
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.75
+            }
+
+            excludes = ['*.*Controller', '*.advice.*', '*.dto.*', '*.config.*', '*.domain.*', '*.support.*']
+        }
+    }
 }
