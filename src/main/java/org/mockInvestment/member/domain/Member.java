@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.mockInvestment.trade.domain.StockOrder;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -23,6 +26,9 @@ public class Member {
     private String role;
 
     private String username;
+
+    @OneToMany(mappedBy = "member")
+    private List<StockOrder> stockOrders;
 
 
     @Builder
