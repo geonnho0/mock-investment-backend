@@ -48,13 +48,13 @@ dependencies {
     testImplementation 'io.rest-assured:spring-mock-mvc'
 }
 
-tasks.named('test') {
+test {
     finalizedBy jacocoTestReport
     outputs.dir snippetsDir
     useJUnitPlatform()
 }
 
-tasks.named('asciidoctor') {
+asciidoctor {
     inputs.dir snippetsDir
     configurations 'asciidoctorExt'
     dependsOn test
