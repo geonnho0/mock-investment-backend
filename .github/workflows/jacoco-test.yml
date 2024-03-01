@@ -1,10 +1,9 @@
 on:
-  push:
+  pull_request:
     branches:
-      - main
+      - dev
 
-permissions:
-  contents: read
+permissions: write-all
 
 jobs:
   set-up-environment:
