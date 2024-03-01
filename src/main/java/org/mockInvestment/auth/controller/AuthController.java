@@ -1,4 +1,4 @@
-package org.mockInvestment.auth;
+package org.mockInvestment.auth.controller;
 
 import org.mockInvestment.auth.dto.AuthInfo;
 import org.mockInvestment.support.auth.Login;
