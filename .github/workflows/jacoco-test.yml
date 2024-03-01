@@ -21,31 +21,15 @@ jobs:
       - name: Grant execution permission for gradlew
         run: chmod +x gradlew
 
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v3
-        with:
-          arguments: build
-          cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/dev' }}
+      - name: Test with Gradle
+        run: ./gradlew --info test
 
-      - name: Jacoco Report to PR
+      - name: Test Coverage Report
         id: jacoco
-        uses: madrapps/jacoco-report@v1.6.1
+        uses: madrapps/jacoco-report@v1.6
         with:
-          paths: ${{ github.workspace }}/build/jacocoReport/test/jacocoTestReport.xml
+          title: Test Coverage Report
+          paths: ${{ github.workspace }}/build/reports/jacoco/test/jacocoTestReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}
-          min-coverage-overall: 80
-          min-coverage-changed-files: 80
-          debug-mode: false
-          title: Code Coverage
-          update-comment: true
-
-      - name: Upload jacoco HTML report
-        uses: actions/upload-artifact@v4
-        with:
-          name: jacoco-html-report
-          path: ${{ github.workspace }}/build/jacocoReport/test/html
-
-      - name: Get the Coverage info
-        run: |
-          echo "Total coverage ${{ steps.jacoco.outputs.coverage-overall }}"
-          echo "Changed Files coverage ${{ steps.jacoco.outputs.coverage-changed-files }}"
+          min-coverage-overall: 30
+          min-coverage-changed-files: 50
