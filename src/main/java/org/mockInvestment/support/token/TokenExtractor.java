@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public class TokenExtractor {
 
-    private static final String BEARER = "Bearer";
+    private static final String COOKIE_NAME = "Authorization";
 
     public static String extractAccessToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
@@ -14,8 +14,11 @@ public class TokenExtractor {
     }
 
     private static String extract(Cookie[] cookies) {
+        if (cookies == null) {
+            return null;
+        }
         for (Cookie cookie: cookies) {
-            if (cookie.getName().equals("Authorization")) {
+            if (cookie.getName().equals(COOKIE_NAME)) {
                 return cookie.getValue();
             }
         }

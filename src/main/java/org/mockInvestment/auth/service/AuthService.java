@@ -35,13 +35,7 @@ public class AuthService extends DefaultOAuth2UserService {
         }
 
         Member member = getOrCreateMember(oAuth2UserAttributes);
-        AuthInfo authInfo = AuthInfo.builder()
-                .id(member.getId())
-                .name(member.getName())
-                .username(member.getUsername())
-                .role(member.getRole())
-                .build();
-
+        AuthInfo authInfo = new AuthInfo(member);
         return new CustomOAuth2User(authInfo);
     }
 
