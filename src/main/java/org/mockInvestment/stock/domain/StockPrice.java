@@ -1,7 +1,6 @@
 package org.mockInvestment.stock.domain;
 
 import jakarta.persistence.Embeddable;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,7 +19,6 @@ public class StockPrice {
 
     private Double curr;
 
-    @Builder
     public StockPrice(Double open, Double high, Double low, Double close, Double curr) {
         this.open = open;
         this.high = high;

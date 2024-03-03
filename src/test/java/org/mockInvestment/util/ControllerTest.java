@@ -4,12 +4,13 @@ import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockInvestment.auth.dto.AuthInfo;
 import org.mockInvestment.stock.controller.StockController;
 import org.mockInvestment.stock.service.StockService;
+import org.mockInvestment.stock.util.PeriodExtractor;
 import org.mockInvestment.support.AuthFilter;
 import org.mockInvestment.support.auth.AuthenticationPrincipalArgumentResolver;
 import org.mockInvestment.support.token.JwtTokenProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.restdocs.RestDocumentationContextProvider;
@@ -46,12 +47,22 @@ public class ControllerTest {
     @MockBean
     protected AuthFilter authFilter;
 
-    protected AuthInfo testAuthInfo = AuthInfo.builder()
-            .id(1L)
-            .role("USER")
-            .name("NAME")
-            .username("USERNAME")
-            .build();
+    @MockBean
+    @Qualifier("oneWeekPeriodExtractor")
+    protected PeriodExtractor oneWeekPeriodExtractor;
+
+    @MockBean
+    @Qualifier("threeMonthsPeriodExtractor")
+    protected PeriodExtractor threeMonthsPeriodExtractor;
+
+    @MockBean
+    @Qualifier("oneYearPeriodExtractor")
+    protected PeriodExtractor oneYearPeriodExtractor;
+
+    @MockBean
+    @Qualifier("fiveYearsPeriodExtractor")
+    protected PeriodExtractor fiveYearsPeriodExtractor;
+
 
     @BeforeEach
     public void setUp(WebApplicationContext webApplicationContext, RestDocumentationContextProvider restDocumentation) {

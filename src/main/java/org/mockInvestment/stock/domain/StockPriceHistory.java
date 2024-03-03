@@ -28,7 +28,8 @@ public class StockPriceHistory {
     private Long volume;
 
 
-    public StockPriceHistory(StockPrice price) {
+    public StockPriceHistory(StockPrice price, long volume) {
         this.price = price;
+        this.volume = volume;
     }
 }
