@@ -1,0 +1,17 @@
+= Mock Investment API Documents
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+:sectnums:
+:docinfo: shared-head
+
+== 주식 관리
+=== 주가 조회
+==== 성공
+operation::stock-prices/success[snippets='http-request,http-response']
+==== 실패
+===== 유효하지 않은 코드
+operation::stock-prices/fail/invalidCode[snippets='http-request,http-response']

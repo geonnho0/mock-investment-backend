@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.mockInvestment.trade.domain.Balance;
 import org.mockInvestment.trade.domain.StockOrder;
 
 import java.util.List;
@@ -29,6 +30,9 @@ public class Member {
 
     @OneToMany(mappedBy = "member")
     private List<StockOrder> stockOrders;
+
+    @OneToOne
+    private Balance balance;
 
 
     @Builder
