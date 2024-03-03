@@ -11,6 +11,6 @@ public class FiveYearsPeriodExtractor extends PeriodExtractor {
 
     @Override
     public LocalDate getStart() {
-        return now.minusMonths(5).toLocalDate();
+        return now.minusYears(5).toLocalDate();
     }
 }

@@ -486,10 +486,15 @@ Vary: Access-Control-Request-Headers
 Content-Type: application/json
 Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Expires: 0
-Content-Length: 19
+Content-Length: 103
 
 {
-  "price" : 1.0
+  "stocks" : [ {
+    "code" : "US1",
+    "name" : "MSFT",
+    "base" : 2.0,
+    "price" : 3.0
+  } ]
 }</code></pre>
 </div>
 </div>
@@ -563,28 +568,28 @@ Content-Length: 454
 {
   "code" : "US1",
   "candles" : [ {
-    "dt" : "2024-03-03",
+    "dt" : "2024-03-04",
     "o" : 1.0,
     "c" : 1.0,
     "l" : 1.0,
     "h" : 1.0,
     "v" : 1
   }, {
-    "dt" : "2024-03-03",
+    "dt" : "2024-03-04",
     "o" : 1.0,
     "c" : 1.0,
     "l" : 1.0,
     "h" : 1.0,
     "v" : 1
   }, {
-    "dt" : "2024-03-03",
+    "dt" : "2024-03-04",
     "o" : 1.0,
     "c" : 1.0,
     "l" : 1.0,
     "h" : 1.0,
     "v" : 1
   }, {
-    "dt" : "2024-03-03",
+    "dt" : "2024-03-04",
     "o" : 1.0,
     "c" : 1.0,
     "l" : 1.0,

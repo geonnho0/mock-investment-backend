@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface StockPriceHistoryRepository extends JpaRepository<StockPriceHistory, Long> {
 
-    StockPriceHistory findFirstByStockOrderByDateDesc(Stock stock);
+    List<StockPriceHistory> findTop2ByStockOrderByDateDesc(Stock stock);
 
     List<StockPriceHistory> findAllByStockAndDateBetween(Stock stock, LocalDate startDate, LocalDate endDate);
 }

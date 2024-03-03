@@ -29,10 +29,10 @@ public class JwtTokenProvider {
         Date expiration = new Date(now.getTime() + expireMilliseconds);
 
         return Jwts.builder()
-                .claim("id", authInfo.getId())
-                .claim("name", authInfo.getName())
-                .claim("username", authInfo.getUsername())
-                .claim("role", authInfo.getRole())
+                .claim("id", authInfo.id())
+                .claim("name", authInfo.name())
+                .claim("username", authInfo.username())
+                .claim("role", authInfo.role())
                 .setIssuedAt(now)
                 .setExpiration(expiration)
                 .signWith(signingKey)
@@ -65,24 +65,14 @@ public class JwtTokenProvider {
             String name = ex.getClaims().get("name", String.class);
             String username = ex.getClaims().get("username", String.class);
             String role = ex.getClaims().get("role", String.class);
-            return AuthInfo.builder()
-                    .id(id)
-                    .name(name)
-                    .username(username)
-                    .role(role)
-                    .build();
+            return new AuthInfo(id, role, name, username);
         }
 
         Long id = claims.get("id", Long.class);
         String name = claims.get("name", String.class);
         String username = claims.get("username", String.class);
         String role = claims.get("role", String.class);
-        return AuthInfo.builder()
-                .id(id)
-                .name(name)
-                .username(username)
-                .role(role)
-                .build();
+        return new AuthInfo(id, role, name, username);
     }
 
 }

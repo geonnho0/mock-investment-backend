@@ -1,12 +1,15 @@
 package org.mockInvestment.stock.controller;
 
-import org.mockInvestment.stock.dto.StockCurrentPriceResponse;
-import org.mockInvestment.stock.dto.StockPriceHistoriesResponse;
+import org.mockInvestment.stock.dto.StockInfoDetailResponse;
+import org.mockInvestment.stock.dto.StockPriceCandlesResponse;
+import org.mockInvestment.stock.dto.StockInfoSummariesResponse;
 import org.mockInvestment.stock.service.StockService;
 import org.mockInvestment.stock.util.PeriodExtractor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 //@CrossOrigin(origins = "*")
 @RestController
@@ -33,33 +36,39 @@ public class StockController {
         this.fiveYearsPeriodExtractor = fiveYearsPeriodExtractor;
     }
 
+    @GetMapping("/stock-detail/{code}/common")
+    public ResponseEntity<StockInfoDetailResponse> findStockInfoDetail(@PathVariable("code") String stockCode) {
+        StockInfoDetailResponse response = stockService.findStockInfoDetail(stockCode);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/stock-prices")
-    public ResponseEntity<StockCurrentPriceResponse> findStockCurrentPrice(@RequestParam("code") String stockCode) {
-        StockCurrentPriceResponse response = stockService.findStockCurrentPrice(stockCode);
+    public ResponseEntity<StockInfoSummariesResponse> findStockSummaries(@RequestParam("code") List<String> stockCodes) {
+        StockInfoSummariesResponse response = stockService.findStockInfoSummaries(stockCodes);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/stock-prices/{code}/candles/1w")
-    public ResponseEntity<StockPriceHistoriesResponse> findStockPriceHistoriesForOneWeek(@PathVariable("code") String stockCode) {
-        StockPriceHistoriesResponse response = stockService.findStockPriceHistories(stockCode, oneWeekPeriodExtractor);
+    public ResponseEntity<StockPriceCandlesResponse> findStockPriceHistoriesForOneWeek(@PathVariable("code") String stockCode) {
+        StockPriceCandlesResponse response = stockService.findStockPriceHistories(stockCode, oneWeekPeriodExtractor);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/stock-prices/{code}/candles/3m")
-    public ResponseEntity<StockPriceHistoriesResponse> findStockPriceHistoriesForThreeMonths(@PathVariable("code") String stockCode) {
-        StockPriceHistoriesResponse response = stockService.findStockPriceHistories(stockCode, threeMonthsPeriodExtractor);
+    public ResponseEntity<StockPriceCandlesResponse> findStockPriceHistoriesForThreeMonths(@PathVariable("code") String stockCode) {
+        StockPriceCandlesResponse response = stockService.findStockPriceHistories(stockCode, threeMonthsPeriodExtractor);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/stock-prices/{code}/candles/1y")
-    public ResponseEntity<StockPriceHistoriesResponse> findStockPriceHistoriesForOneYear(@PathVariable("code") String stockCode) {
-        StockPriceHistoriesResponse response = stockService.findStockPriceHistories(stockCode, oneYearPeriodExtractor);
+    public ResponseEntity<StockPriceCandlesResponse> findStockPriceHistoriesForOneYear(@PathVariable("code") String stockCode) {
+        StockPriceCandlesResponse response = stockService.findStockPriceHistories(stockCode, oneYearPeriodExtractor);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/stock-prices/{code}/candles/5y")
-    public ResponseEntity<StockPriceHistoriesResponse> findStockPriceHistoriesForFiveYears(@PathVariable("code") String stockCode) {
-        StockPriceHistoriesResponse response = stockService.findStockPriceHistories(stockCode, fiveYearsPeriodExtractor);
+    public ResponseEntity<StockPriceCandlesResponse> findStockPriceHistoriesForFiveYears(@PathVariable("code") String stockCode) {
+        StockPriceCandlesResponse response = stockService.findStockPriceHistories(stockCode, fiveYearsPeriodExtractor);
         return ResponseEntity.ok(response);
     }
 }

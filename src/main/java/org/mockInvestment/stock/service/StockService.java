@@ -3,15 +3,14 @@ package org.mockInvestment.stock.service;
 import org.mockInvestment.advice.exception.StockNotFoundException;
 import org.mockInvestment.stock.domain.Stock;
 import org.mockInvestment.stock.domain.StockPriceHistory;
-import org.mockInvestment.stock.dto.StockCurrentPriceResponse;
-import org.mockInvestment.stock.dto.StockPriceHistoriesResponse;
-import org.mockInvestment.stock.dto.StockPriceHistoryResponse;
+import org.mockInvestment.stock.dto.*;
 import org.mockInvestment.stock.repository.StockPriceHistoryRepository;
 import org.mockInvestment.stock.repository.StockRepository;
 import org.mockInvestment.stock.util.PeriodExtractor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,22 +27,37 @@ public class StockService {
         this.stockPriceHistoryRepository = stockPriceHistoryRepository;
     }
 
-    public StockCurrentPriceResponse findStockCurrentPrice(String stockCode) {
+    public StockInfoDetailResponse findStockInfoDetail(String stockCode) {
         Stock stock = stockRepository.findByCode(stockCode)
                 .orElseThrow(StockNotFoundException::new);
-        StockPriceHistory priceHistory = stockPriceHistoryRepository.findFirstByStockOrderByDateDesc(stock);
-
-        return new StockCurrentPriceResponse(priceHistory.getPrice().getCurr());
+        List<StockPriceHistory> priceHistories = stockPriceHistoryRepository.findTop2ByStockOrderByDateDesc(stock);
+        double currentPrice = priceHistories.get(0).getPrice().getCurr();
+        double base = priceHistories.get(1).getPrice().getClose();
+        return new StockInfoDetailResponse(stock, base, currentPrice);
     }
 
-    public StockPriceHistoriesResponse findStockPriceHistories(String stockCode, PeriodExtractor periodExtractor) {
+    public StockInfoSummariesResponse findStockInfoSummaries(List<String> stockCodes) {
+        List<StockInfoSummaryResponse> prices = new ArrayList<>();
+        for (String code : stockCodes) {
+            Stock stock = stockRepository.findByCode(code)
+                    .orElseThrow(StockNotFoundException::new);
+            List<StockPriceHistory> priceHistories = stockPriceHistoryRepository.findTop2ByStockOrderByDateDesc(stock);
+            double currentPrice = priceHistories.get(0).getPrice().getCurr();
+            double base = priceHistories.get(1).getPrice().getClose();
+            prices.add(new StockInfoSummaryResponse(code, stock.getName(), base, currentPrice));
+        }
+        return new StockInfoSummariesResponse(prices);
+    }
+
+    public StockPriceCandlesResponse findStockPriceHistories(String stockCode, PeriodExtractor periodExtractor) {
         Stock stock = stockRepository.findByCode(stockCode)
                 .orElseThrow(StockNotFoundException::new);
         List<StockPriceHistory> priceHistories = stockPriceHistoryRepository
                 .findAllByStockAndDateBetween(stock, periodExtractor.getStart(), periodExtractor.getEnd());
-        List<StockPriceHistoryResponse> responses = priceHistories.stream()
-                .map(StockPriceHistoryResponse::new)
+        List<StockPriceCandleResponse> responses = priceHistories.stream()
+                .map(StockPriceCandleResponse::new)
                 .toList();
-        return new StockPriceHistoriesResponse(stockCode, responses);
+        return new StockPriceCandlesResponse(stockCode, responses);
     }
+
 }

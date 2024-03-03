@@ -7,7 +7,7 @@ import org.mockInvestment.advice.exception.StockNotFoundException;
 import org.mockInvestment.stock.domain.Stock;
 import org.mockInvestment.stock.domain.StockPrice;
 import org.mockInvestment.stock.domain.StockPriceHistory;
-import org.mockInvestment.stock.dto.StockPriceHistoriesResponse;
+import org.mockInvestment.stock.dto.StockPriceCandlesResponse;
 import org.mockInvestment.stock.repository.StockPriceHistoryRepository;
 import org.mockInvestment.stock.repository.StockRepository;
 import org.mockInvestment.stock.util.PeriodExtractor;
@@ -42,25 +42,32 @@ class StockServiceTest {
 
 
     @Test
-    @DisplayName("유효한 코드로 현재 주가를 불러온다.")
-    void findStockCurrentPrice() {
+    @DisplayName("유효한 코드로 현재 주가(들)에 대한 간략한 정보를 불러온다.")
+    void findStockInfoSummaries() {
         when(stockRepository.findByCode(any(String.class)))
                 .thenReturn(Optional.of(new Stock()));
         StockPrice stockPrice = new StockPrice(1.0, 1.0, 1.0, 1.0, 1.0);
-        StockPriceHistory history = new StockPriceHistory(stockPrice, 1L);
-        when(stockPriceHistoryRepository.findFirstByStockOrderByDateDesc(any(Stock.class)))
-                .thenReturn(history);
+        List<StockPriceHistory> histories = new ArrayList<>();
+        histories.add(new StockPriceHistory(stockPrice, 1L));
+        histories.add(new StockPriceHistory(stockPrice, 1L));
+        when(stockPriceHistoryRepository.findTop2ByStockOrderByDateDesc(any(Stock.class)))
+                .thenReturn(histories);
 
-        assertThat(stockService.findStockCurrentPrice("US1").price()).isEqualTo(1.0);
+        List<String> stockCodes = new ArrayList<>();
+        stockCodes.add("US1");
+        stockCodes.add("US2");
+        assertThat(stockService.findStockInfoSummaries(stockCodes).stocks().size()).isEqualTo(2);
     }
 
     @Test
-    @DisplayName("유효하지 않은 코드로 현재 주가를 불러오면, StockNotFoundException을 발생시킨다.")
+    @DisplayName("유효하지 않은 코드로 현재 주가(들)에 대한 간략한 정보를 불려오려고 하면, StockNotFoundException을 발생시킨다.")
     void findStockCurrentPrice_exception_invalidCode() {
         when(stockRepository.findByCode(any(String.class)))
                 .thenThrow(new StockNotFoundException());
 
-        assertThatThrownBy(() -> stockService.findStockCurrentPrice("XXX"))
+        List<String> stockCodes = new ArrayList<>();
+        stockCodes.add("XXX");
+        assertThatThrownBy(() -> stockService.findStockInfoSummaries(stockCodes))
                 .isInstanceOf(StockNotFoundException.class);
     }
 
@@ -82,7 +89,7 @@ class StockServiceTest {
         when(periodExtractor.getEnd())
                 .thenReturn(LocalDate.now());
 
-        StockPriceHistoriesResponse response = stockService.findStockPriceHistories("US1", periodExtractor);
+        StockPriceCandlesResponse response = stockService.findStockPriceHistories("US1", periodExtractor);
 
         assertThat(response.candles().size()).isEqualTo(count);
     }
