@@ -2,11 +2,13 @@ package org.mockInvestment.stock.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class Stock {
 
     @Id
@@ -21,5 +23,9 @@ public class Stock {
 
     @OneToMany(mappedBy = "stock")
     private List<StockPriceHistory> priceHistories;
+
+    public Stock(String name) {
+        this.name = name;
+    }
 
 }
