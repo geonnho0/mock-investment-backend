@@ -1,5 +1,6 @@
 package org.mockInvestment.stock.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,6 +11,7 @@ import org.mockInvestment.stock.domain.StockPriceHistory;
 import org.mockInvestment.stock.dto.StockInfoDetailResponse;
 import org.mockInvestment.stock.dto.StockPriceCandlesResponse;
 import org.mockInvestment.stock.repository.StockPriceHistoryRepository;
+import org.mockInvestment.stock.repository.StockRedisRepository;
 import org.mockInvestment.stock.repository.StockRepository;
 import org.mockInvestment.stock.util.PeriodExtractor;
 import org.mockito.InjectMocks;
@@ -17,9 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -41,11 +41,45 @@ class StockServiceTest {
     @Mock
     private PeriodExtractor periodExtractor;
 
+    @Mock
+    private StockRedisRepository stockRedisRepository;
+
+    Map<String, String> stockInfoWithBase = new HashMap<>();
+
+    Map<String, String> stockInfoWithoutBase = new HashMap<>();
+
+    @BeforeEach
+    void setUp() {
+        stockInfoWithBase.put("name", "Mock Stock");
+        stockInfoWithBase.put("symbol", "MOCK");
+        stockInfoWithBase.put("curr", "1.0");
+        stockInfoWithBase.put("base", "0.1");
+
+        stockInfoWithoutBase.put("name", "Mock Stock");
+        stockInfoWithoutBase.put("symbol", "MOCK");
+        stockInfoWithoutBase.put("curr", "1.0");
+    }
+
     @Test
-    @DisplayName("유효한 코드로 현재 주가에 대한 정보를 불러온다.")
-    void findStockInfoDetail() {
+    @DisplayName("유효한 코드로 현재 주가에 대한 정보를 불러온다. 레디스에 전날의 가격을 저장했다.")
+    void findStockInfoDetail_containBase() {
+        when(stockRedisRepository.get(any(String.class)))
+                .thenReturn(stockInfoWithBase);
+
+        StockInfoDetailResponse response = stockService.findStockInfoDetail("Mock Stock");
+
+        assertThat(response.base()).isEqualTo(0.1);
+        assertThat(response.price()).isEqualTo(1.0);
+        assertThat(response.name()).isEqualTo("Mock Stock");
+    }
+
+    @Test
+    @DisplayName("유효한 코드로 현재 주가에 대한 정보를 불러온다. 레디스에 전날의 가격을 저장하지 않았다.")
+    void findStockInfoDetail_notContainBase() {
+        when(stockRedisRepository.get(any(String.class)))
+                .thenReturn(stockInfoWithoutBase);
         when(stockRepository.findByCode(any(String.class)))
-                .thenReturn(Optional.of(new Stock("MSFT")));
+                .thenReturn(Optional.of(new Stock()));
         StockPrice today = new StockPrice(1.0, 1.0, 1.0, 1.0, 1.0);
         StockPrice yesterday = new StockPrice(0.1, 0.1, 0.1, 0.1, 0.1);
         List<StockPriceHistory> histories = new ArrayList<>();
@@ -54,18 +88,21 @@ class StockServiceTest {
         when(stockPriceHistoryRepository.findTop2ByStockOrderByDateDesc(any(Stock.class)))
                 .thenReturn(histories);
 
-        StockInfoDetailResponse response = stockService.findStockInfoDetail("US1");
+        StockInfoDetailResponse response = stockService.findStockInfoDetail("Mock Stock");
 
-        assertThat(response.base()).isEqualTo(yesterday.getClose());
-        assertThat(response.price()).isEqualTo(today.getCurr());
-        assertThat(response.name()).isEqualTo("MSFT");
+        assertThat(response.base()).isEqualTo(0.1);
+        assertThat(response.price()).isEqualTo(1.0);
+        assertThat(response.name()).isEqualTo("Mock Stock");
     }
 
+
     @Test
-    @DisplayName("유효한 코드로 현재 주가(들)에 대한 간략한 정보를 불러온다.")
-    void findStockInfoSummaries() {
+    @DisplayName("유효한 코드로 현재 주가(들)에 대한 간략한 정보를 불러온다. 레디스에 전날의 가격을 저장하지 않았다.")
+    void findStockInfoSummaries_notContainBase() {
+        when(stockRedisRepository.get(any(String.class)))
+                .thenReturn(stockInfoWithoutBase);
         when(stockRepository.findByCode(any(String.class)))
-                .thenReturn(Optional.of(new Stock("MSFT")));
+                .thenReturn(Optional.of(new Stock()));
         StockPrice stockPrice = new StockPrice(1.0, 1.0, 1.0, 1.0, 1.0);
         List<StockPriceHistory> histories = new ArrayList<>();
         histories.add(new StockPriceHistory(stockPrice, 1L));
@@ -95,7 +132,7 @@ class StockServiceTest {
     @DisplayName("최근 3개월 동안의 주가 정보를 불러온다.")
     void findStockPriceHistoriesForThreeMonths() {
         when(stockRepository.findByCode(any(String.class)))
-                .thenReturn(Optional.of(new Stock("MSFT")));
+                .thenReturn(Optional.of(new Stock()));
         List<StockPriceHistory> histories = new ArrayList<>();
         StockPrice stockPrice = new StockPrice(1.0, 1.0, 1.0, 1.0, 1.0);
         int count = 10;

@@ -8,7 +8,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@NoArgsConstructor
 public class Stock {
 
     @Id
@@ -23,9 +22,5 @@ public class Stock {
 
     @OneToMany(mappedBy = "stock")
     private List<StockPriceHistory> priceHistories;
-
-    public Stock(String name) {
-        this.name = name;
-    }
 
 }
