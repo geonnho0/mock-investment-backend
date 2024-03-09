@@ -5,11 +5,9 @@ import org.mockInvestment.stock.domain.Stock;
 import org.mockInvestment.stock.domain.StockPriceHistory;
 import org.mockInvestment.stock.dto.*;
 import org.mockInvestment.stock.repository.StockPriceHistoryRepository;
-import org.mockInvestment.stock.repository.StockRedisRepository;
+import org.mockInvestment.stock.repository.StockPriceRedisRepository;
 import org.mockInvestment.stock.repository.StockRepository;
 import org.mockInvestment.stock.util.PeriodExtractor;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,16 +23,16 @@ public class StockService {
 
     private final StockPriceHistoryRepository stockPriceHistoryRepository;
 
-    private final StockRedisRepository stockRedisRepository;
+    private final StockPriceRedisRepository stockPriceRedisRepository;
 
-    public StockService(StockRepository stockRepository, StockPriceHistoryRepository stockPriceHistoryRepository, StockRedisRepository stockRedisRepository) {
+    public StockService(StockRepository stockRepository, StockPriceHistoryRepository stockPriceHistoryRepository, StockPriceRedisRepository stockPriceRedisRepository) {
         this.stockRepository = stockRepository;
         this.stockPriceHistoryRepository = stockPriceHistoryRepository;
-        this.stockRedisRepository = stockRedisRepository;
+        this.stockPriceRedisRepository = stockPriceRedisRepository;
     }
 
     public StockInfoDetailResponse findStockInfoDetail(String stockCode) {
-        Map<String, String> stockInfo = stockRedisRepository.get(stockCode);
+        Map<String, String> stockInfo = stockPriceRedisRepository.get(stockCode);
         double base = getBase(stockCode, stockInfo);
         double currentPrice = Double.parseDouble(stockInfo.get("curr"));
         return new StockInfoDetailResponse(stockInfo.get("name"), stockInfo.get("symbol"), base, currentPrice);
@@ -43,7 +41,7 @@ public class StockService {
     public StockInfoSummariesResponse findStockInfoSummaries(List<String> stockCodes) {
         List<StockInfoSummaryResponse> prices = new ArrayList<>();
         for (String code : stockCodes) {
-            Map<String, String> stockInfo = stockRedisRepository.get(code);
+            Map<String, String> stockInfo = stockPriceRedisRepository.get(code);
             String stockName = stockInfo.get("name");
             double base = getBase(code, stockInfo);
             double currentPrice = Double.parseDouble(stockInfo.get("curr"));
@@ -73,7 +71,7 @@ public class StockService {
                 .orElseThrow(StockNotFoundException::new);
         List<StockPriceHistory> priceHistories = stockPriceHistoryRepository.findTop2ByStockOrderByDateDesc(stock);
         double base = priceHistories.get(1).getPrice().getClose();
-        stockRedisRepository.put(stockCode, "base", String.valueOf(base));
+        stockPriceRedisRepository.put(stockCode, "base", String.valueOf(base));
         return base;
     }
 

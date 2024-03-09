@@ -11,7 +11,7 @@ import org.mockInvestment.stock.domain.StockPriceHistory;
 import org.mockInvestment.stock.dto.StockInfoDetailResponse;
 import org.mockInvestment.stock.dto.StockPriceCandlesResponse;
 import org.mockInvestment.stock.repository.StockPriceHistoryRepository;
-import org.mockInvestment.stock.repository.StockRedisRepository;
+import org.mockInvestment.stock.repository.StockPriceRedisRepository;
 import org.mockInvestment.stock.repository.StockRepository;
 import org.mockInvestment.stock.util.PeriodExtractor;
 import org.mockito.InjectMocks;
@@ -42,7 +42,7 @@ class StockServiceTest {
     private PeriodExtractor periodExtractor;
 
     @Mock
-    private StockRedisRepository stockRedisRepository;
+    private StockPriceRedisRepository stockPriceRedisRepository;
 
     Map<String, String> stockInfoWithBase = new HashMap<>();
 
@@ -63,7 +63,7 @@ class StockServiceTest {
     @Test
     @DisplayName("유효한 코드로 현재 주가에 대한 정보를 불러온다. 레디스에 전날의 가격을 저장했다.")
     void findStockInfoDetail_containBase() {
-        when(stockRedisRepository.get(any(String.class)))
+        when(stockPriceRedisRepository.get(any(String.class)))
                 .thenReturn(stockInfoWithBase);
 
         StockInfoDetailResponse response = stockService.findStockInfoDetail("Mock Stock");
@@ -76,7 +76,7 @@ class StockServiceTest {
     @Test
     @DisplayName("유효한 코드로 현재 주가에 대한 정보를 불러온다. 레디스에 전날의 가격을 저장하지 않았다.")
     void findStockInfoDetail_notContainBase() {
-        when(stockRedisRepository.get(any(String.class)))
+        when(stockPriceRedisRepository.get(any(String.class)))
                 .thenReturn(stockInfoWithoutBase);
         when(stockRepository.findByCode(any(String.class)))
                 .thenReturn(Optional.of(new Stock()));
@@ -99,7 +99,7 @@ class StockServiceTest {
     @Test
     @DisplayName("유효한 코드로 현재 주가(들)에 대한 간략한 정보를 불러온다. 레디스에 전날의 가격을 저장하지 않았다.")
     void findStockInfoSummaries_notContainBase() {
-        when(stockRedisRepository.get(any(String.class)))
+        when(stockPriceRedisRepository.get(any(String.class)))
                 .thenReturn(stockInfoWithoutBase);
         when(stockRepository.findByCode(any(String.class)))
                 .thenReturn(Optional.of(new Stock()));

@@ -2,6 +2,7 @@ package org.mockInvestment.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -21,10 +22,13 @@ public class RedisConfig {
 
     private final String stockPriceUpdateChannel;
 
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-    public RedisConfig(RedisProperties redisProperties, @Value("${spring.redis.topic.stockPriceUpdateChannel}") String stockPriceUpdateChannel) {
+
+    public RedisConfig(RedisProperties redisProperties, @Value("${spring.redis.topic.stockPriceUpdateChannel}") String stockPriceUpdateChannel, ApplicationEventPublisher applicationEventPublisher) {
         this.redisProperties = redisProperties;
         this.stockPriceUpdateChannel = stockPriceUpdateChannel;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @Bean
@@ -47,22 +51,20 @@ public class RedisConfig {
     }
 
     @Bean
-    MessageListenerAdapter messageListenerAdapter() {
-        return new MessageListenerAdapter(new RedisSubService());
+    public MessageListenerAdapter messageListenerAdapter() {
+        return new MessageListenerAdapter(new RedisSubService(applicationEventPublisher));
     }
 
-    //컨테이너 설정
     @Bean
-    RedisMessageListenerContainer redisContainer() {
+    public RedisMessageListenerContainer redisContainer() {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(redisConnectionFactory());
         container.addMessageListener(messageListenerAdapter(), topic());
         return container;
     }
 
-    //pub/sub 토픽 설정
     @Bean
-    ChannelTopic topic() {
+    public ChannelTopic topic() {
         return new ChannelTopic(stockPriceUpdateChannel);
     }
 

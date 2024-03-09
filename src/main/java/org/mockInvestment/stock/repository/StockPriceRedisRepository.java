@@ -7,12 +7,12 @@ import org.springframework.stereotype.Repository;
 import java.util.Map;
 
 @Repository
-public class StockRedisRepository {
+public class StockPriceRedisRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
 
 
-    public StockRedisRepository(RedisTemplate<String, String> redisTemplate) {
+    public StockPriceRedisRepository(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
