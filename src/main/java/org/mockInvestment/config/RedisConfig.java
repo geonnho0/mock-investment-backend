@@ -1,16 +1,11 @@
 package org.mockInvestment.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
@@ -20,15 +15,9 @@ public class RedisConfig {
 
     private final RedisProperties redisProperties;
 
-    private final String stockPriceUpdateChannel;
 
-    private final ApplicationEventPublisher applicationEventPublisher;
-
-
-    public RedisConfig(RedisProperties redisProperties, @Value("${spring.redis.topic.stockPriceUpdateChannel}") String stockPriceUpdateChannel, ApplicationEventPublisher applicationEventPublisher) {
+    public RedisConfig(RedisProperties redisProperties) {
         this.redisProperties = redisProperties;
-        this.stockPriceUpdateChannel = stockPriceUpdateChannel;
-        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @Bean
@@ -48,24 +37,6 @@ public class RedisConfig {
         redisTemplate.setHashValueSerializer(new StringRedisSerializer());
 
         return redisTemplate;
-    }
-
-    @Bean
-    public MessageListenerAdapter messageListenerAdapter() {
-        return new MessageListenerAdapter(new RedisSubService(applicationEventPublisher));
-    }
-
-    @Bean
-    public RedisMessageListenerContainer redisContainer() {
-        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-        container.setConnectionFactory(redisConnectionFactory());
-        container.addMessageListener(messageListenerAdapter(), topic());
-        return container;
-    }
-
-    @Bean
-    public ChannelTopic topic() {
-        return new ChannelTopic(stockPriceUpdateChannel);
     }
 
 }

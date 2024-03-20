@@ -8,14 +8,18 @@
 :sectnums:
 :docinfo: shared-head
 
-== 주식 관리
+== 주가 관련
 === 현재 주가 조회
 ==== 성공
 operation::stock-prices/success[snippets='http-request,http-response']
 ==== 실패
 ===== 유효하지 않은 코드
 operation::stock-prices/fail/invalidCode[snippets='http-request,http-response']
-
 === 특정 기간 주가 조회 (1w, 3m, 1y, 5y)
 ==== 성공
 operation::stock-prices/candles/success[snippets='http-request,http-response']
+
+== 주식 거래
+=== 주식 구매 요청
+==== 성공
+operation::stocks-order/purchase/success[snippets='http-request,http-response']

@@ -7,10 +7,10 @@ import java.time.LocalDate;
 
 @Component
 @Qualifier("oneWeekPeriodExtractor")
-public class OneWeekPeriodExtractor extends PeriodExtractor {
+public class OneWeekPeriodExtractor implements PeriodExtractor {
 
     @Override
     public LocalDate getStart() {
-        return now.minusWeeks(1).toLocalDate();
+        return getNow().minusWeeks(1).toLocalDate();
     }
 }

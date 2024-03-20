@@ -46,6 +46,7 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
     testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'com.h2database:h2'
     testImplementation 'io.rest-assured:spring-mock-mvc'
 }
 

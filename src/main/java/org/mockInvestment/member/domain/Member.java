@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.mockInvestment.balance.domain.Balance;
-import org.mockInvestment.trade.domain.StockOrder;
+import org.mockInvestment.stockOrder.domain.StockOrder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +43,7 @@ public class Member {
         this.email = email;
         this.role = role;
         this.username = username;
+        balance = new Balance(this);
     }
 
     public void bidStock(StockOrder stockOrder) {

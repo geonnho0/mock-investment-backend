@@ -7,10 +7,10 @@ import java.time.LocalDate;
 
 @Component
 @Qualifier("fiveYearsPeriodExtractor")
-public class FiveYearsPeriodExtractor extends PeriodExtractor {
+public class FiveYearsPeriodExtractor implements PeriodExtractor {
 
     @Override
     public LocalDate getStart() {
-        return now.minusYears(5).toLocalDate();
+        return getNow().minusYears(5).toLocalDate();
     }
 }

@@ -1,13 +1,11 @@
 package org.mockInvestment.auth.service;
 
-import org.mockInvestment.balance.repository.BalanceRepository;
 import org.mockInvestment.member.domain.Member;
 import org.mockInvestment.member.repository.MemberRepository;
 import org.mockInvestment.auth.dto.AuthInfo;
 import org.mockInvestment.auth.dto.CustomOAuth2User;
 import org.mockInvestment.auth.dto.GoogleUserAttributes;
 import org.mockInvestment.auth.dto.OAuth2UserAttributes;
-import org.mockInvestment.balance.domain.Balance;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -21,12 +19,9 @@ public class AuthService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
 
-    private final BalanceRepository balanceRepository;
 
-
-    public AuthService(MemberRepository memberRepository, BalanceRepository balanceRepository) {
+    public AuthService(MemberRepository memberRepository) {
         this.memberRepository = memberRepository;
-        this.balanceRepository = balanceRepository;
     }
 
     @Override
@@ -53,7 +48,6 @@ public class AuthService extends DefaultOAuth2UserService {
                     .role("ROLE_USER")
                     .username(oAuth2UserAttributes.getUsername())
                     .build();
-            createBalance(newMember);
             return memberRepository.save(newMember);
         }
         member.get().setEmail(oAuth2UserAttributes.getEmail());
@@ -61,8 +55,4 @@ public class AuthService extends DefaultOAuth2UserService {
         return member.get();
     }
 
-    private void createBalance(Member member) {
-        Balance balance = new Balance(member);
-        balanceRepository.save(balance);
-    }
 }

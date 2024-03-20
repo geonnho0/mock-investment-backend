@@ -4,12 +4,16 @@ import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockInvestment.stock.controller.StockController;
-import org.mockInvestment.stock.service.StockService;
+import org.mockInvestment.stock.controller.StockInfoController;
+import org.mockInvestment.stock.controller.StockPriceController;
+import org.mockInvestment.stock.service.StockInfoService;
+import org.mockInvestment.stock.service.StockPriceService;
 import org.mockInvestment.stock.util.PeriodExtractor;
 import org.mockInvestment.support.AuthFilter;
 import org.mockInvestment.support.auth.AuthenticationPrincipalArgumentResolver;
 import org.mockInvestment.support.token.JwtTokenProvider;
+import org.mockInvestment.stockOrder.controller.StockOrderController;
+import org.mockInvestment.stockOrder.service.StockOrderService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -27,7 +31,9 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 @WebMvcTest({
-        StockController.class
+        StockInfoController.class,
+        StockPriceController.class,
+        StockOrderController.class
 })
 @WithMockUser
 @ExtendWith(RestDocumentationExtension.class)
@@ -36,7 +42,13 @@ public class ControllerTest {
     protected MockMvcRequestSpecification restDocs;
 
     @MockBean
-    protected StockService stockService;
+    protected StockInfoService stockInfoService;
+
+    @MockBean
+    protected StockPriceService stockPriceService;
+
+    @MockBean
+    protected StockOrderService stockOrderService;
 
     @MockBean
     protected AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver;

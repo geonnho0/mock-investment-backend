@@ -1,7 +1,6 @@
 package org.mockInvestment.support.auth;
 
 import jakarta.servlet.http.HttpServletRequest;
-import org.mockInvestment.auth.dto.AuthInfo;
 import org.mockInvestment.support.token.JwtTokenProvider;
 import org.mockInvestment.support.token.TokenExtractor;
 import org.springframework.core.MethodParameter;
@@ -31,9 +30,6 @@ public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArg
                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
         String token = TokenExtractor.extractAccessToken(Objects.requireNonNull(request));
-        if (token == null) {
-            return new AuthInfo(null, null, null, null);
-        }
         return jwtTokenProvider.getParsedClaims(token);
     }
 }

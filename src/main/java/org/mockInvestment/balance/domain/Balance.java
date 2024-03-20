@@ -23,6 +23,7 @@ public class Balance {
 
     public Balance(Member member) {
         this.member = member;
+        balance = 1000000.0;
     }
 
     public void purchase(Double price) {
