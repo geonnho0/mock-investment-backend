@@ -65,15 +65,19 @@ public class StockOrderService {
 
     @Transactional
     public void cancelStockPurchase(AuthInfo authInfo, StockPurchaseCancelRequest request) {
+        Member member = memberRepository.findById(authInfo.getId())
+                .orElseThrow(MemberNotFoundException::new);
         StockOrder stockOrder = stockOrderRepository.findById(request.orderId())
                 .orElseThrow(StockOrderNotFoundException::new);
         stockOrder.checkCancelAuthority(authInfo.getId());
+        member.cancelBidStock(stockOrder);
 
         stockOrderRepository.delete(stockOrder);
         cancelPendingStockOrder(stockOrder.getStock().getId(), stockOrder.getId());
     }
 
     @EventListener
+    @Transactional
     public void executePendingStockOrders(StockCurrentPrice stockCurrentPrice) {
         List<PendingStockOrder> pendingStockOrders = pendingStockOrderCacheRepository.findAllByStockId(stockCurrentPrice.stockId());
         pendingStockOrders.forEach(pendingStockOrder -> {

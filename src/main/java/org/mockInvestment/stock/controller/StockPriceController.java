@@ -1,12 +1,16 @@
 package org.mockInvestment.stock.controller;
 
+import org.mockInvestment.auth.dto.AuthInfo;
 import org.mockInvestment.stock.dto.StockPriceCandlesResponse;
 import org.mockInvestment.stock.dto.StockPricesResponse;
 import org.mockInvestment.stock.service.StockPriceService;
 import org.mockInvestment.stock.util.PeriodExtractor;
+import org.mockInvestment.support.auth.Login;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -40,6 +44,12 @@ public class StockPriceController {
     public ResponseEntity<StockPricesResponse> findStockPrices(@RequestParam("code") List<String> stockCodes) {
         StockPricesResponse response = stockPriceService.findStockPrices(stockCodes);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public ResponseEntity<SseEmitter> subscribe(@Login AuthInfo authInfo, @RequestParam("code") List<String> stockCodes) {
+        SseEmitter sseEmitter = stockPriceService.subscribeStockPrices(authInfo, stockCodes);
+        return ResponseEntity.ok(sseEmitter);
     }
 
     @GetMapping("/{code}/candles/1w")

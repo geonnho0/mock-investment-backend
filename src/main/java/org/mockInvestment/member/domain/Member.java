@@ -50,4 +50,11 @@ public class Member {
         balance.purchase(stockOrder.totalBidPrice());
         stockOrders.add(stockOrder);
     }
+
+    public void cancelBidStock(StockOrder stockOrder) {
+        stockOrder.checkCancelAuthority(id);
+        balance.cancelPayment(stockOrder.totalBidPrice());
+        stockOrders.remove(stockOrder);
+    }
+
 }

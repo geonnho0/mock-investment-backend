@@ -9,12 +9,12 @@ import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PendingStockOrderService implements MessageListener {
+public class StockCurrentPriceService implements MessageListener {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
 
-    public PendingStockOrderService(ApplicationEventPublisher applicationEventPublisher) {
+    public StockCurrentPriceService(ApplicationEventPublisher applicationEventPublisher) {
         this.applicationEventPublisher = applicationEventPublisher;
     }
 

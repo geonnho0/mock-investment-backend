@@ -1,6 +1,6 @@
 package org.mockInvestment.config;
 
-import org.mockInvestment.stockOrder.service.PendingStockOrderService;
+import org.mockInvestment.stockOrder.service.StockCurrentPriceService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +28,7 @@ public class RedisPubSubConfig {
 
     @Bean
     public MessageListenerAdapter messageListenerAdapter() {
-        return new MessageListenerAdapter(new PendingStockOrderService(applicationEventPublisher));
+        return new MessageListenerAdapter(new StockCurrentPriceService(applicationEventPublisher));
     }
 
     @Bean

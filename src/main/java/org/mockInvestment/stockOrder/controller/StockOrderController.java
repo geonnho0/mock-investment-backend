@@ -23,6 +23,7 @@ public class StockOrderController {
     public ResponseEntity<Void> requestStockPurchase(@Login AuthInfo authInfo, @PathVariable("code") String stockCode,
                                          @RequestBody StockPurchaseRequest request) {
         stockOrderService.requestStockPurchase(authInfo, stockCode, request);
+//        System.out.println(authInfo.getId() + " " + stockCode + " " + request.bidPrice());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

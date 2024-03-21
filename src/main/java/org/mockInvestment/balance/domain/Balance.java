@@ -32,4 +32,8 @@ public class Balance {
         }
         balance -= price;
     }
+
+    public void cancelPayment(Double price) {
+        balance += price;
+    }
 }
