@@ -5,7 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockInvestment.advice.exception.InvalidStockCodeException;
-import org.mockInvestment.stock.dto.LastStockInfo;
+import org.mockInvestment.stock.domain.RecentStockInfo;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -29,7 +29,7 @@ class StockInfoRedisRepositoryTest {
     private RedisTemplate<String, String> redisTemplate;
 
     @InjectMocks
-    private LastStockInfoRedisRepository stockInfoRedisRepository;
+    private RecentStockInfoRedisRepository stockInfoRedisRepository;
 
     @BeforeEach
     void setUp() {
@@ -54,7 +54,7 @@ class StockInfoRedisRepositoryTest {
         when(redisTemplate.opsForValue().get(any(String.class)))
                 .thenReturn(validString);
 
-        Optional<LastStockInfo> lastStockInfo = stockInfoRedisRepository.findByStockCode("CODE");
+        Optional<RecentStockInfo> lastStockInfo = stockInfoRedisRepository.findByStockCode("CODE");
 
         assertThat(lastStockInfo.isPresent()).isEqualTo(true);
         assertThat(lastStockInfo.get().name()).isEqualTo("Apple");

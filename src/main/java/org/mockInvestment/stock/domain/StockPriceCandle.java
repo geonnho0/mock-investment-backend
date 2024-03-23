@@ -32,4 +32,25 @@ public class StockPriceCandle {
         this.price = price;
         this.volume = volume;
     }
+
+    public Double getClose() {
+        return price.getClose();
+    }
+
+    public Double getCurr() {
+        return price.getCurr();
+    }
+
+    public Double getOpen() {
+        return price.getOpen();
+    }
+
+    public Double getHigh() {
+        return price.getHigh();
+    }
+
+    public Double getLow() {
+        return price.getLow();
+    }
+
 }

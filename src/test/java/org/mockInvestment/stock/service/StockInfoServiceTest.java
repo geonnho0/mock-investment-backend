@@ -5,9 +5,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockInvestment.advice.exception.InvalidStockCodeException;
-import org.mockInvestment.stock.dto.LastStockInfo;
+import org.mockInvestment.stock.domain.RecentStockInfo;
 import org.mockInvestment.stock.dto.StockInfoResponse;
-import org.mockInvestment.stock.repository.LastStockInfoCacheRepository;
+import org.mockInvestment.stock.repository.RecentStockInfoCacheRepository;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,19 +26,19 @@ class StockInfoServiceTest {
     private StockInfoService stockInfoService;
 
     @Mock
-    private LastStockInfoCacheRepository lastStockInfoCacheRepository;
+    private RecentStockInfoCacheRepository recentStockInfoCacheRepository;
 
-    LastStockInfo testStockInfo;
+    RecentStockInfo testStockInfo;
 
     @BeforeEach
     void setUp() {
-        testStockInfo = new LastStockInfo("MOCK", "Mock Stock", 0.1, 0.1, 1.0, 1.5, 0.6, 0.1, 10L);
+        testStockInfo = new RecentStockInfo("MOCK", "Mock Stock", 0.1, 0.1, 1.0, 1.5, 0.6, 0.1, 10L);
     }
 
     @Test
     @DisplayName("유효한 코드로 특정 주식의 현재 주가에 대한 자세한 정보를 불러온다.")
     void findStockInfoDetail() {
-        when(lastStockInfoCacheRepository.findByStockCode(any(String.class)))
+        when(recentStockInfoCacheRepository.findByStockCode(any(String.class)))
                 .thenReturn(Optional.ofNullable(testStockInfo));
 
         StockInfoResponse response = stockInfoService.findStockInfo("Mock Stock");
@@ -51,7 +51,7 @@ class StockInfoServiceTest {
     @Test
     @DisplayName("유효하지 않은 코드로 특정 주식의 현재 주가에 대한 자세한 정보를 요청하면, InvalidStockCodeException 을 발생시킨다.")
     void findStockInfoDetail_exception_invalidCode() {
-        when(lastStockInfoCacheRepository.findByStockCode(any(String.class)))
+        when(recentStockInfoCacheRepository.findByStockCode(any(String.class)))
                 .thenThrow(new InvalidStockCodeException());
 
         assertThatThrownBy(() -> stockInfoService.findStockInfo("XX"))

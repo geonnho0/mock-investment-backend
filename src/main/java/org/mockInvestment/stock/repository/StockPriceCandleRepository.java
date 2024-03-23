@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface StockPriceCandleRepository extends JpaRepository<StockPriceCandle, Long> {
 
+    List<StockPriceCandle> findTop2ByStockOrderByDateDesc(Stock stock);
+
     List<StockPriceCandle> findAllByStockAndDateBetween(Stock stock, LocalDate startDate, LocalDate endDate);
 
 }

@@ -1,5 +1,6 @@
 package org.mockInvestment.stock.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.mockInvestment.auth.dto.AuthInfo;
 import org.mockInvestment.stock.dto.StockPriceCandlesResponse;
 import org.mockInvestment.stock.dto.StockPricesResponse;
@@ -14,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/stock-prices")
 public class StockPriceController {
@@ -29,7 +31,8 @@ public class StockPriceController {
 
     private final PeriodExtractor fiveYearsPeriodExtractor;
 
-    public StockPriceController(StockPriceService stockPriceService, @Qualifier("oneWeekPeriodExtractor") PeriodExtractor oneWeekPeriodExtractor,
+    public StockPriceController(StockPriceService stockPriceService,
+                                @Qualifier("oneWeekPeriodExtractor") PeriodExtractor oneWeekPeriodExtractor,
                                 @Qualifier("threeMonthsPeriodExtractor") PeriodExtractor threeMonthsPeriodExtractor,
                                 @Qualifier("oneYearPeriodExtractor") PeriodExtractor oneYearPeriodExtractor,
                                 @Qualifier("fiveYearsPeriodExtractor") PeriodExtractor fiveYearsPeriodExtractor) {
@@ -48,6 +51,7 @@ public class StockPriceController {
 
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> subscribe(@Login AuthInfo authInfo, @RequestParam("code") List<String> stockCodes) {
+        log.info("StockPriceController - subscribe");
         SseEmitter sseEmitter = stockPriceService.subscribeStockPrices(authInfo, stockCodes);
         return ResponseEntity.ok(sseEmitter);
     }

@@ -8,9 +8,9 @@ import org.mockInvestment.advice.exception.InvalidStockCodeException;
 import org.mockInvestment.stock.domain.Stock;
 import org.mockInvestment.stock.domain.StockPrice;
 import org.mockInvestment.stock.domain.StockPriceCandle;
-import org.mockInvestment.stock.dto.LastStockInfo;
+import org.mockInvestment.stock.domain.RecentStockInfo;
 import org.mockInvestment.stock.dto.StockPriceCandlesResponse;
-import org.mockInvestment.stock.repository.LastStockInfoCacheRepository;
+import org.mockInvestment.stock.repository.RecentStockInfoCacheRepository;
 import org.mockInvestment.stock.repository.StockPriceCandleRepository;
 import org.mockInvestment.stock.repository.StockRepository;
 import org.mockInvestment.stock.util.PeriodExtractor;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 class StockPriceServiceTest {
 
     @Mock
-    private LastStockInfoCacheRepository lastStockInfoCacheRepository;
+    private RecentStockInfoCacheRepository recentStockInfoCacheRepository;
 
     @Mock
     private StockRepository stockRepository;
@@ -46,17 +46,17 @@ class StockPriceServiceTest {
     @InjectMocks
     private StockPriceService stockPriceService;
 
-    private LastStockInfo testStockInfo;
+    private RecentStockInfo testStockInfo;
 
     @BeforeEach
     void setUp() {
-        testStockInfo = new LastStockInfo("MOCK", "Mock Stock", 0.1, 0.1, 1.0, 1.5, 0.6, 0.1, 10L);
+        testStockInfo = new RecentStockInfo("MOCK", "Mock Stock", 0.1, 0.1, 1.0, 1.5, 0.6, 0.1, 10L);
     }
 
     @Test
     @DisplayName("유효한 코드로 현재 주가(들)에 대한 간략한 정보를 불러온다.")
     void findStockInfoSummaries() {
-        when(lastStockInfoCacheRepository.findByStockCode(any(String.class)))
+        when(recentStockInfoCacheRepository.findByStockCode(any(String.class)))
                 .thenReturn(Optional.ofNullable(testStockInfo));
 
         List<String> stockCodes = new ArrayList<>();
@@ -68,7 +68,7 @@ class StockPriceServiceTest {
     @Test
     @DisplayName("유효하지 않은 코드로 현재 주가(들)에 대한 간략한 정보를 불려오려고 하면, InvalidStockCodeException 을 발생시킨다.")
     void findStockCurrentPrice_exception_invalidCodes() {
-        when(lastStockInfoCacheRepository.findByStockCode(any(String.class)))
+        when(recentStockInfoCacheRepository.findByStockCode(any(String.class)))
                 .thenThrow(new InvalidStockCodeException());
 
         List<String> stockCodes = new ArrayList<>();

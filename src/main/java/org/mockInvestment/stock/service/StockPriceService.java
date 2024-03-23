@@ -1,19 +1,20 @@
 package org.mockInvestment.stock.service;
 
-import org.mockInvestment.advice.exception.JsonStringDeserializationFailureException;
 import org.mockInvestment.advice.exception.StockNotFoundException;
 import org.mockInvestment.auth.dto.AuthInfo;
+import org.mockInvestment.stock.domain.RecentStockInfo;
 import org.mockInvestment.stock.domain.Stock;
 import org.mockInvestment.stock.domain.StockPriceCandle;
 import org.mockInvestment.stock.dto.*;
 import org.mockInvestment.stock.repository.EmitterRepository;
-import org.mockInvestment.stock.repository.LastStockInfoCacheRepository;
+import org.mockInvestment.stock.repository.RecentStockInfoCacheRepository;
 import org.mockInvestment.stock.repository.StockPriceCandleRepository;
 import org.mockInvestment.stock.repository.StockRepository;
 import org.mockInvestment.stock.util.PeriodExtractor;
 import org.mockInvestment.stockOrder.dto.StockCurrentPrice;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
@@ -22,20 +23,21 @@ import java.util.List;
 import java.util.Set;
 
 @Service
+@Transactional(readOnly = true)
 public class StockPriceService {
 
     private final StockRepository stockRepository;
 
-    private final LastStockInfoCacheRepository lastStockInfoCacheRepository;
+    private final RecentStockInfoCacheRepository recentStockInfoCacheRepository;
 
     private final StockPriceCandleRepository stockPriceCandleRepository;
 
     private final EmitterRepository emitterRepository;
 
 
-    public StockPriceService(StockRepository stockRepository, LastStockInfoCacheRepository lastStockInfoCacheRepository, StockPriceCandleRepository stockPriceCandleRepository, EmitterRepository emitterRepository) {
+    public StockPriceService(StockRepository stockRepository, RecentStockInfoCacheRepository recentStockInfoCacheRepository, StockPriceCandleRepository stockPriceCandleRepository, EmitterRepository emitterRepository) {
         this.stockRepository = stockRepository;
-        this.lastStockInfoCacheRepository = lastStockInfoCacheRepository;
+        this.recentStockInfoCacheRepository = recentStockInfoCacheRepository;
         this.stockPriceCandleRepository = stockPriceCandleRepository;
         this.emitterRepository = emitterRepository;
     }
@@ -43,12 +45,24 @@ public class StockPriceService {
     public StockPricesResponse findStockPrices(List<String> stockCodes) {
         List<StockPriceResponse> responses = new ArrayList<>();
         for (String code : stockCodes) {
-            LastStockInfo stockInfo = lastStockInfoCacheRepository.findByStockCode(code)
-                    .orElseThrow(JsonStringDeserializationFailureException::new);
+            RecentStockInfo stockInfo = recentStockInfoCacheRepository.findByStockCode(code)
+                    .orElseGet(() -> {
+                        RecentStockInfo findStockInfo = findRecentStockInfo(code);
+                        recentStockInfoCacheRepository.saveByCode(code, findStockInfo);
+                        return findStockInfo;
+                    });
 
             responses.add(StockPriceResponse.of(code, stockInfo));
         }
         return new StockPricesResponse(responses);
+    }
+
+    private RecentStockInfo findRecentStockInfo(String stockCode) {
+        Stock stock = stockRepository.findByCode(stockCode)
+                .orElseThrow(StockNotFoundException::new);
+        List<StockPriceCandle> stockPriceCandles = stockPriceCandleRepository.findTop2ByStockOrderByDateDesc(stock);
+        StockPriceCandle recentCandle = stockPriceCandles.get(0);
+        return new RecentStockInfo(stockPriceCandles.get(1).getClose(), stock, recentCandle);
     }
 
     public StockPriceCandlesResponse findStockPriceCandles(String stockCode, PeriodExtractor periodExtractor) {
@@ -63,18 +77,19 @@ public class StockPriceService {
     }
 
     public SseEmitter subscribeStockPrices(AuthInfo authInfo, List<String> stockCodes) {
+        String key = authInfo.getId() + String.valueOf(System.currentTimeMillis());
         for (String stockCode : stockCodes) {
             Stock stock = stockRepository.findByCode(stockCode)
                     .orElseThrow(StockNotFoundException::new);
-            emitterRepository.createSubscription(authInfo.getId(), stock.getId());
-            sendToClient(authInfo.getId(), new StockCurrentPrice(stock.getId(), stockCode, 0.0));
+            emitterRepository.createSubscription(key, stock.getId());
+            sendToClient(key, new StockCurrentPrice(stock.getId(), stockCode, 0.0));
         }
-        return emitterRepository.getSseEmitterByMemberId(authInfo.getId())
+        return emitterRepository.getSseEmitterByKey(key)
                 .orElseThrow();
     }
 
-    private void sendToClient(long memberId, StockCurrentPrice stockCurrentPrice) {
-        SseEmitter emitter = emitterRepository.getSseEmitterByMemberId(memberId)
+    private void sendToClient(String key, StockCurrentPrice stockCurrentPrice) {
+        SseEmitter emitter = emitterRepository.getSseEmitterByKey(key)
                 .orElseThrow();
 
         try {
@@ -83,14 +98,14 @@ public class StockPriceService {
                     .data(stockCurrentPrice));
         } catch (IOException e) {
             emitter.completeWithError(e);
-            emitterRepository.deleteSseEmitterByMemberId(memberId);
+            emitterRepository.deleteSseEmitterByKey(key);
         }
     }
 
     @EventListener
     protected void publishStockCurrentPrice(StockCurrentPrice stockCurrentPrice) {
-        Set<Long> memberIds = emitterRepository.getMemberIdsByStockId(stockCurrentPrice.stockId());
-        for (Long memberId : memberIds)
+        Set<String> memberIds = emitterRepository.getMemberIdsByStockId(stockCurrentPrice.stockId());
+        for (String memberId : memberIds)
             sendToClient(memberId, stockCurrentPrice);
     }
 

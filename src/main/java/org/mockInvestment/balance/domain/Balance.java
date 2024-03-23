@@ -36,4 +36,9 @@ public class Balance {
     public void cancelPayment(Double price) {
         balance += price;
     }
+
+    public double getBalance() {
+        return balance;
+    }
+
 }
