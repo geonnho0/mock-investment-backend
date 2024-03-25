@@ -72,7 +72,7 @@ public class StockOrderService {
     }
 
     @Transactional
-    public void cancelStockPurchase(AuthInfo authInfo, StockPurchaseCancelRequest request) {
+    public void cancelStockOrder(AuthInfo authInfo, StockOrderCancelRequest request) {
         Member member = memberRepository.findById(authInfo.getId())
                 .orElseThrow(MemberNotFoundException::new);
         StockOrder stockOrder = stockOrderRepository.findById(request.orderId())
@@ -111,8 +111,8 @@ public class StockOrderService {
         pendingStockOrderCacheRepository.remove(pendingStockOrder);
     }
 
-    public StockOrderHistoriesResponse findStockOrderHistories(AuthInfo authInfo) {
-        Member member = memberRepository.findById(authInfo.getId())
+    public StockOrderHistoriesResponse findStockOrderHistories(long memberId) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
         List<StockOrder> stockOrders = stockOrderRepository.findAllByMember(member);
         List<StockOrderHistoryResponse> histories = new ArrayList<>();
@@ -124,7 +124,7 @@ public class StockOrderService {
         return new StockOrderHistoriesResponse(histories);
     }
 
-    public StockOrderHistoriesResponse findStockOrderHistoriesByCode(AuthInfo authInfo, String stockCode) {
+    public StockOrderHistoriesResponse findMyStockOrderHistoriesByCode(AuthInfo authInfo, String stockCode) {
         Member member = memberRepository.findById(authInfo.getId())
                 .orElseThrow(MemberNotFoundException::new);
         Stock stock = stockRepository.findByCode(stockCode)

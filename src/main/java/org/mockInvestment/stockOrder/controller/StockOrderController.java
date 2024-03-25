@@ -3,7 +3,7 @@ package org.mockInvestment.stockOrder.controller;
 import org.mockInvestment.auth.dto.AuthInfo;
 import org.mockInvestment.stockOrder.dto.StockOrderHistoriesResponse;
 import org.mockInvestment.support.auth.Login;
-import org.mockInvestment.stockOrder.dto.StockPurchaseCancelRequest;
+import org.mockInvestment.stockOrder.dto.StockOrderCancelRequest;
 import org.mockInvestment.stockOrder.dto.NewStockOrderRequest;
 import org.mockInvestment.stockOrder.service.StockOrderService;
 import org.springframework.http.HttpStatus;
@@ -27,22 +27,22 @@ public class StockOrderController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping("/stocks/order")
-    public ResponseEntity<Void> cancelStockStockOrder(@Login AuthInfo authInfo, @RequestBody StockPurchaseCancelRequest request) {
-        stockOrderService.cancelStockPurchase(authInfo, request);
+    @DeleteMapping("/stocks/orders")
+    public ResponseEntity<Void> cancelStockStockOrder(@Login AuthInfo authInfo, @RequestBody StockOrderCancelRequest request) {
+        stockOrderService.cancelStockOrder(authInfo, request);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/stock-orders/histories/me")
-    public ResponseEntity<StockOrderHistoriesResponse> findMyStockOrderHistories(@Login AuthInfo authInfo) {
-        StockOrderHistoriesResponse response = stockOrderService.findStockOrderHistories(authInfo);
+    @GetMapping("/stocks/orders")
+    public ResponseEntity<StockOrderHistoriesResponse> findStockOrderHistories(@RequestParam("member") long memberId) {
+        StockOrderHistoriesResponse response = stockOrderService.findStockOrderHistories(memberId);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/stock-orders/histories")
-    public ResponseEntity<StockOrderHistoriesResponse> findStockOrderHistoriesByCode(@Login AuthInfo authInfo,
+    @GetMapping("/stocks/orders/me")
+    public ResponseEntity<StockOrderHistoriesResponse> findMyStockOrderHistoriesByCode(@Login AuthInfo authInfo,
                                                                                  @RequestParam("code") String stockCode) {
-        StockOrderHistoriesResponse response = stockOrderService.findStockOrderHistoriesByCode(authInfo, stockCode);
+        StockOrderHistoriesResponse response = stockOrderService.findMyStockOrderHistoriesByCode(authInfo, stockCode);
         return ResponseEntity.ok(response);
     }
 

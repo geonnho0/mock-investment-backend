@@ -12,7 +12,7 @@ import org.mockInvestment.stock.domain.Stock;
 import org.mockInvestment.stock.repository.StockRepository;
 import org.mockInvestment.stockOrder.domain.PendingStockOrder;
 import org.mockInvestment.stockOrder.domain.StockOrder;
-import org.mockInvestment.stockOrder.dto.StockPurchaseCancelRequest;
+import org.mockInvestment.stockOrder.dto.StockOrderCancelRequest;
 import org.mockInvestment.stockOrder.dto.NewStockOrderRequest;
 import org.mockInvestment.stockOrder.repository.PendingStockOrderCacheRepository;
 import org.mockInvestment.stockOrder.repository.StockOrderRepository;
@@ -118,7 +118,7 @@ class StockOrderServiceTest {
         when(pendingStockOrderCacheRepository.findByStockIdAndStockOrderId(anyLong(), anyLong()))
                 .thenReturn(Optional.of(pendingStockOrder));
 
-        stockOrderService.cancelStockPurchase(testAuthInfo, new StockPurchaseCancelRequest(1L));
+        stockOrderService.cancelStockOrder(testAuthInfo, new StockOrderCancelRequest(1L));
     }
 
     @Test
@@ -127,7 +127,7 @@ class StockOrderServiceTest {
         when(stockOrderRepository.findById(anyLong()))
                 .thenThrow(new StockOrderNotFoundException());
 
-        assertThatThrownBy(() -> stockOrderService.cancelStockPurchase(testAuthInfo, new StockPurchaseCancelRequest(1L)))
+        assertThatThrownBy(() -> stockOrderService.cancelStockOrder(testAuthInfo, new StockOrderCancelRequest(1L)))
                 .isInstanceOf(StockOrderNotFoundException.class);
     }
 
@@ -139,7 +139,7 @@ class StockOrderServiceTest {
         when(stockOrderRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(testStockOrder));
 
-        assertThatThrownBy(() -> stockOrderService.cancelStockPurchase(authInfo, new StockPurchaseCancelRequest(1L)))
+        assertThatThrownBy(() -> stockOrderService.cancelStockOrder(authInfo, new StockOrderCancelRequest(1L)))
                 .isInstanceOf(AuthorizationException.class);
     }
 
@@ -152,7 +152,7 @@ class StockOrderServiceTest {
         when(pendingStockOrderCacheRepository.findByStockIdAndStockOrderId(anyLong(), anyLong()))
                 .thenThrow(new PendingStockOrderNotFoundException());
 
-        assertThatThrownBy(() -> stockOrderService.cancelStockPurchase(testAuthInfo, new StockPurchaseCancelRequest(1L)))
+        assertThatThrownBy(() -> stockOrderService.cancelStockOrder(testAuthInfo, new StockOrderCancelRequest(1L)))
                 .isInstanceOf(PendingStockOrderNotFoundException.class);
     }
 

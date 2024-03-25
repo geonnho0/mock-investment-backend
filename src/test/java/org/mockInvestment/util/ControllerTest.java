@@ -23,6 +23,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.modifyHeaders;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
@@ -75,6 +78,7 @@ public class ControllerTest {
     @Qualifier("fiveYearsPeriodExtractor")
     protected PeriodExtractor fiveYearsPeriodExtractor;
 
+    protected Map<String, String> cookies = new HashMap<>();
 
     @BeforeEach
     public void setUp(WebApplicationContext webApplicationContext, RestDocumentationContextProvider restDocumentation) {
@@ -94,6 +98,8 @@ public class ControllerTest {
                                         .remove("X-Frame-Options")))
                         .build())
                 .log().all();
+
+        cookies.put("Authorization", "Access Token");
     }
 
 }
