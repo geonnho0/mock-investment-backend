@@ -115,27 +115,28 @@ public class StockOrderService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
         List<StockOrder> stockOrders = stockOrderRepository.findAllByMember(member);
-        List<StockOrderHistoryResponse> histories = new ArrayList<>();
-        for (StockOrder stockOrder : stockOrders) {
-            histories.add(new StockOrderHistoryResponse(stockOrder.getId(), stockOrder.getOrderDate(),
-                    stockOrder.getStockOrderType().getValue(), stockOrder.getBidPrice(),
-                    stockOrder.getVolume(), stockOrder.getStock().getName()));
-        }
-        return new StockOrderHistoriesResponse(histories);
+
+        return createStockOrderHistoriesResponse(stockOrders);
     }
 
     public StockOrderHistoriesResponse findMyStockOrderHistoriesByCode(AuthInfo authInfo, String stockCode) {
+        if (stockCode.isEmpty())
+            return findStockOrderHistories(authInfo.getId());
+
         Member member = memberRepository.findById(authInfo.getId())
                 .orElseThrow(MemberNotFoundException::new);
         Stock stock = stockRepository.findByCode(stockCode)
                 .orElseThrow(StockNotFoundException::new);
         List<StockOrder> stockOrders = stockOrderRepository.findAllByMemberAndStock(member, stock);
+
+        return createStockOrderHistoriesResponse(stockOrders);
+    }
+
+    private StockOrderHistoriesResponse createStockOrderHistoriesResponse(List<StockOrder> stockOrders) {
         List<StockOrderHistoryResponse> histories = new ArrayList<>();
-        for (StockOrder stockOrder : stockOrders) {
-            histories.add(new StockOrderHistoryResponse(stockOrder.getId(), stockOrder.getOrderDate(),
-                    stockOrder.getStockOrderType().getValue(), stockOrder.getBidPrice(),
-                    stockOrder.getVolume(), stockOrder.getStock().getName()));
-        }
+        for (StockOrder stockOrder : stockOrders)
+            histories.add(StockOrderHistoryResponse.of(stockOrder));
+
         return new StockOrderHistoriesResponse(histories);
     }
 
