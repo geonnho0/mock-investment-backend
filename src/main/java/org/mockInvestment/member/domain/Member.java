@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.mockInvestment.balance.domain.Balance;
+import org.mockInvestment.stock.domain.MemberOwnStock;
 import org.mockInvestment.stockOrder.domain.StockOrder;
 
 import java.util.ArrayList;
@@ -32,6 +33,9 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private List<StockOrder> stockOrders = new ArrayList<>();
 
+    @OneToMany(mappedBy = "member")
+    private List<MemberOwnStock> ownStocks = new ArrayList<>();
+
     @OneToOne
     private Balance balance;
 
@@ -47,7 +51,8 @@ public class Member {
     }
 
     public void bidStock(StockOrder stockOrder) {
-        balance.purchase(stockOrder.totalBidPrice());
+        if (stockOrder.isBuy())
+            balance.purchase(stockOrder.totalBidPrice());
         stockOrders.add(stockOrder);
     }
 

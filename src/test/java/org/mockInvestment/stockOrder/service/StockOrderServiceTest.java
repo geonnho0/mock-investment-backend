@@ -13,7 +13,7 @@ import org.mockInvestment.stock.repository.StockRepository;
 import org.mockInvestment.stockOrder.domain.PendingStockOrder;
 import org.mockInvestment.stockOrder.domain.StockOrder;
 import org.mockInvestment.stockOrder.dto.StockPurchaseCancelRequest;
-import org.mockInvestment.stockOrder.dto.StockPurchaseRequest;
+import org.mockInvestment.stockOrder.dto.NewStockOrderRequest;
 import org.mockInvestment.stockOrder.repository.PendingStockOrderCacheRepository;
 import org.mockInvestment.stockOrder.repository.StockOrderRepository;
 import org.mockito.InjectMocks;
@@ -70,7 +70,7 @@ class StockOrderServiceTest {
     @Test
     @DisplayName("주식 구매 요청 생성")
     void requestStockPurchase() {
-        StockPurchaseRequest request = new StockPurchaseRequest(1.0, 1L);
+        NewStockOrderRequest request = new NewStockOrderRequest(1.0, 1L, "BUY");
         testStockOrder = createStockOrder(request.bidPrice(), request.volume());
         when(memberRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(testMember));
@@ -79,7 +79,7 @@ class StockOrderServiceTest {
         when(stockOrderRepository.save(any(StockOrder.class)))
                 .thenReturn(testStockOrder);
 
-        stockOrderService.requestStockPurchase(testAuthInfo, "CODE", request);
+        stockOrderService.createStockOrder(testAuthInfo, "CODE", request);
 
         assertThat(testMember.getStockOrders().size()).isEqualTo(1);
         assertThat(testMember.getStockOrders().get(0).getMember().getId()).isEqualTo(testStockOrder.getMember().getId());
@@ -89,20 +89,22 @@ class StockOrderServiceTest {
     @Test
     @DisplayName("사용자 정보가 유효하지 않으면 MemberNotFoundException 을 발생시킨다.")
     void requestStockPurchase_exception_invalidAuthInfo() {
+        NewStockOrderRequest request = new NewStockOrderRequest(1.0, 1L, "BUY");
         when(memberRepository.findById(anyLong()))
                 .thenThrow(new MemberNotFoundException());
 
-        assertThatThrownBy(() -> stockOrderService.requestStockPurchase(testAuthInfo, "CODE", new StockPurchaseRequest(1.0, 1L)))
+        assertThatThrownBy(() -> stockOrderService.createStockOrder(testAuthInfo, "CODE", request))
                 .isInstanceOf(MemberNotFoundException.class);
     }
 
     @Test
     @DisplayName("주식 코드가 유효하지 않으면 StockNotFoundException 을 발생시킨다.")
     void requestStockPurchase_exception_invalidStockCode() {
+        NewStockOrderRequest request = new NewStockOrderRequest(1.0, 1L, "BUY");
         when(memberRepository.findById(anyLong()))
                 .thenThrow(new StockNotFoundException());
 
-        assertThatThrownBy(() -> stockOrderService.requestStockPurchase(testAuthInfo, "CODE", new StockPurchaseRequest(1.0, 1L)))
+        assertThatThrownBy(() -> stockOrderService.createStockOrder(testAuthInfo, "CODE", request))
                 .isInstanceOf(StockNotFoundException.class);
     }
 

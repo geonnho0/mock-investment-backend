@@ -2,7 +2,7 @@ package org.mockInvestment.stockOrder.service;
 
 import org.mockInvestment.advice.exception.JsonStringDeserializationFailureException;
 import org.mockInvestment.common.JsonStringMapper;
-import org.mockInvestment.stockOrder.dto.StockCurrentPrice;
+import org.mockInvestment.stock.domain.UpdateStockCurrentPriceEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
@@ -20,9 +20,9 @@ public class StockCurrentPriceService implements MessageListener {
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
-        StockCurrentPrice stockCurrentPrice = JsonStringMapper.parseJsonString(message.toString(), StockCurrentPrice.class)
+        UpdateStockCurrentPriceEvent updateStockCurrentPriceEvent = JsonStringMapper.parseJsonString(message.toString(), UpdateStockCurrentPriceEvent.class)
                 .orElseThrow(JsonStringDeserializationFailureException::new);
-        applicationEventPublisher.publishEvent(stockCurrentPrice);
+        applicationEventPublisher.publishEvent(updateStockCurrentPriceEvent);
     }
 
 }

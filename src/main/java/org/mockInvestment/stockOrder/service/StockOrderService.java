@@ -7,19 +7,22 @@ import org.mockInvestment.advice.exception.StockOrderNotFoundException;
 import org.mockInvestment.auth.dto.AuthInfo;
 import org.mockInvestment.member.domain.Member;
 import org.mockInvestment.member.repository.MemberRepository;
+import org.mockInvestment.stock.domain.MemberOwnStock;
+import org.mockInvestment.stock.repository.MemberOwnStockRepository;
 import org.mockInvestment.stock.domain.Stock;
+import org.mockInvestment.stock.domain.UpdateStockCurrentPriceEvent;
 import org.mockInvestment.stock.repository.StockRepository;
 import org.mockInvestment.stockOrder.domain.StockOrder;
 import org.mockInvestment.stockOrder.domain.PendingStockOrder;
-import org.mockInvestment.stockOrder.dto.StockPurchaseCancelRequest;
-import org.mockInvestment.stockOrder.dto.StockPurchaseRequest;
-import org.mockInvestment.stockOrder.dto.StockCurrentPrice;
+import org.mockInvestment.stockOrder.domain.StockOrderType;
+import org.mockInvestment.stockOrder.dto.*;
 import org.mockInvestment.stockOrder.repository.PendingStockOrderCacheRepository;
 import org.mockInvestment.stockOrder.repository.StockOrderRepository;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -34,19 +37,23 @@ public class StockOrderService {
 
     private final PendingStockOrderCacheRepository pendingStockOrderCacheRepository;
 
+    private final MemberOwnStockRepository memberOwnStockRepository;
+
 
     public StockOrderService(MemberRepository memberRepository,
                              StockRepository stockRepository,
                              StockOrderRepository stockOrderRepository,
-                             PendingStockOrderCacheRepository pendingStockOrderCacheRepository) {
+                             PendingStockOrderCacheRepository pendingStockOrderCacheRepository,
+                             MemberOwnStockRepository memberOwnStockRepository) {
         this.memberRepository = memberRepository;
         this.stockRepository = stockRepository;
         this.stockOrderRepository = stockOrderRepository;
         this.pendingStockOrderCacheRepository = pendingStockOrderCacheRepository;
+        this.memberOwnStockRepository = memberOwnStockRepository;
     }
 
     @Transactional
-    public void requestStockPurchase(AuthInfo authInfo, String code, StockPurchaseRequest request) {
+    public void createStockOrder(AuthInfo authInfo, String code, NewStockOrderRequest request) {
         Member member = memberRepository.findById(authInfo.getId())
                 .orElseThrow(MemberNotFoundException::new);
         Stock stock = stockRepository.findByCode(code)
@@ -56,6 +63,7 @@ public class StockOrderService {
                 .stock(stock)
                 .bidPrice(request.bidPrice())
                 .volume(request.volume())
+                .stockOrderType(StockOrderType.parse(request.orderType()))
                 .build();
         member.bidStock(stockOrder);
 
@@ -78,10 +86,10 @@ public class StockOrderService {
 
     @EventListener
     @Transactional
-    public void executePendingStockOrders(StockCurrentPrice stockCurrentPrice) {
-        List<PendingStockOrder> pendingStockOrders = pendingStockOrderCacheRepository.findAllByStockId(stockCurrentPrice.stockId());
+    public void executePendingStockOrders(UpdateStockCurrentPriceEvent updateStockCurrentPriceEvent) {
+        List<PendingStockOrder> pendingStockOrders = pendingStockOrderCacheRepository.findAllByStockId(updateStockCurrentPriceEvent.stockId());
         pendingStockOrders.forEach(pendingStockOrder -> {
-            if (pendingStockOrder.canConclude(stockCurrentPrice.curr())) {
+            if (pendingStockOrder.canConclude(updateStockCurrentPriceEvent.curr())) {
                 executePendingStockOrder(pendingStockOrder);
             }
         });
@@ -91,6 +99,9 @@ public class StockOrderService {
         StockOrder stockOrder = stockOrderRepository.findById(pendingStockOrder.orderId())
                 .orElseThrow(StockOrderNotFoundException::new);
         stockOrder.execute();
+        MemberOwnStock memberOwnStock = memberOwnStockRepository.findByMemberAndStock(stockOrder.getMember(), stockOrder.getStock())
+                        .orElseThrow();
+        memberOwnStock.apply(stockOrder.getBidPrice(), stockOrder.getVolume(), stockOrder.isBuy());
         pendingStockOrderCacheRepository.remove(pendingStockOrder);
     }
 
@@ -98,6 +109,34 @@ public class StockOrderService {
         PendingStockOrder pendingStockOrder = pendingStockOrderCacheRepository.findByStockIdAndStockOrderId(stockId, stockOrderId)
                 .orElseThrow(PendingStockOrderNotFoundException::new);
         pendingStockOrderCacheRepository.remove(pendingStockOrder);
+    }
+
+    public StockOrderHistoriesResponse findStockOrderHistories(AuthInfo authInfo) {
+        Member member = memberRepository.findById(authInfo.getId())
+                .orElseThrow(MemberNotFoundException::new);
+        List<StockOrder> stockOrders = stockOrderRepository.findAllByMember(member);
+        List<StockOrderHistoryResponse> histories = new ArrayList<>();
+        for (StockOrder stockOrder : stockOrders) {
+            histories.add(new StockOrderHistoryResponse(stockOrder.getId(), stockOrder.getOrderDate(),
+                    stockOrder.getStockOrderType().getValue(), stockOrder.getBidPrice(),
+                    stockOrder.getVolume(), stockOrder.getStock().getName()));
+        }
+        return new StockOrderHistoriesResponse(histories);
+    }
+
+    public StockOrderHistoriesResponse findStockOrderHistoriesByCode(AuthInfo authInfo, String stockCode) {
+        Member member = memberRepository.findById(authInfo.getId())
+                .orElseThrow(MemberNotFoundException::new);
+        Stock stock = stockRepository.findByCode(stockCode)
+                .orElseThrow(StockNotFoundException::new);
+        List<StockOrder> stockOrders = stockOrderRepository.findAllByMemberAndStock(member, stock);
+        List<StockOrderHistoryResponse> histories = new ArrayList<>();
+        for (StockOrder stockOrder : stockOrders) {
+            histories.add(new StockOrderHistoryResponse(stockOrder.getId(), stockOrder.getOrderDate(),
+                    stockOrder.getStockOrderType().getValue(), stockOrder.getBidPrice(),
+                    stockOrder.getVolume(), stockOrder.getStock().getName()));
+        }
+        return new StockOrderHistoriesResponse(histories);
     }
 
 }

@@ -11,7 +11,7 @@ import org.mockInvestment.stock.repository.RecentStockInfoCacheRepository;
 import org.mockInvestment.stock.repository.StockPriceCandleRepository;
 import org.mockInvestment.stock.repository.StockRepository;
 import org.mockInvestment.stock.util.PeriodExtractor;
-import org.mockInvestment.stockOrder.dto.StockCurrentPrice;
+import org.mockInvestment.stock.domain.UpdateStockCurrentPriceEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,20 +82,20 @@ public class StockPriceService {
             Stock stock = stockRepository.findByCode(stockCode)
                     .orElseThrow(StockNotFoundException::new);
             emitterRepository.createSubscription(key, stock.getId());
-            sendToClient(key, new StockCurrentPrice(stock.getId(), stockCode, 0.0));
+            sendToClient(key, new UpdateStockCurrentPriceEvent(stock.getId(), stockCode, 0.0));
         }
         return emitterRepository.getSseEmitterByKey(key)
                 .orElseThrow();
     }
 
-    private void sendToClient(String key, StockCurrentPrice stockCurrentPrice) {
+    private void sendToClient(String key, UpdateStockCurrentPriceEvent updateStockCurrentPriceEvent) {
         SseEmitter emitter = emitterRepository.getSseEmitterByKey(key)
                 .orElseThrow();
 
         try {
             emitter.send(SseEmitter.event()
                     .name("stock-price")
-                    .data(stockCurrentPrice));
+                    .data(updateStockCurrentPriceEvent));
         } catch (IOException e) {
             emitter.completeWithError(e);
             emitterRepository.deleteSseEmitterByKey(key);
@@ -103,10 +103,10 @@ public class StockPriceService {
     }
 
     @EventListener
-    protected void publishStockCurrentPrice(StockCurrentPrice stockCurrentPrice) {
-        Set<String> memberIds = emitterRepository.getMemberIdsByStockId(stockCurrentPrice.stockId());
+    protected void publishStockCurrentPrice(UpdateStockCurrentPriceEvent updateStockCurrentPriceEvent) {
+        Set<String> memberIds = emitterRepository.getMemberIdsByStockId(updateStockCurrentPriceEvent.stockId());
         for (String memberId : memberIds)
-            sendToClient(memberId, stockCurrentPrice);
+            sendToClient(memberId, updateStockCurrentPriceEvent);
     }
 
 }

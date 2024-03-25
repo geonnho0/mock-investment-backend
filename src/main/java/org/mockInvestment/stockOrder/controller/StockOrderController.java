@@ -1,9 +1,10 @@
 package org.mockInvestment.stockOrder.controller;
 
 import org.mockInvestment.auth.dto.AuthInfo;
+import org.mockInvestment.stockOrder.dto.StockOrderHistoriesResponse;
 import org.mockInvestment.support.auth.Login;
 import org.mockInvestment.stockOrder.dto.StockPurchaseCancelRequest;
-import org.mockInvestment.stockOrder.dto.StockPurchaseRequest;
+import org.mockInvestment.stockOrder.dto.NewStockOrderRequest;
 import org.mockInvestment.stockOrder.service.StockOrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,18 +20,30 @@ public class StockOrderController {
         this.stockOrderService = stockOrderService;
     }
 
-    @PostMapping("/stocks/{code}/purchase")
-    public ResponseEntity<Void> requestStockPurchase(@Login AuthInfo authInfo, @PathVariable("code") String stockCode,
-                                         @RequestBody StockPurchaseRequest request) {
-        stockOrderService.requestStockPurchase(authInfo, stockCode, request);
-//        System.out.println(authInfo.getId() + " " + stockCode + " " + request.bidPrice());
+    @PostMapping("/stocks/{code}/order")
+    public ResponseEntity<Void> createStockOrder(@Login AuthInfo authInfo, @PathVariable("code") String stockCode,
+                                                 @RequestBody NewStockOrderRequest request) {
+        stockOrderService.createStockOrder(authInfo, stockCode, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping("/stocks/purchase")
-    public ResponseEntity<Void> cancelStockPurchase(@Login AuthInfo authInfo, @RequestBody StockPurchaseCancelRequest request) {
+    @DeleteMapping("/stocks/order")
+    public ResponseEntity<Void> cancelStockStockOrder(@Login AuthInfo authInfo, @RequestBody StockPurchaseCancelRequest request) {
         stockOrderService.cancelStockPurchase(authInfo, request);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/stock-orders/histories/me")
+    public ResponseEntity<StockOrderHistoriesResponse> findMyStockOrderHistories(@Login AuthInfo authInfo) {
+        StockOrderHistoriesResponse response = stockOrderService.findStockOrderHistories(authInfo);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/stock-orders/histories")
+    public ResponseEntity<StockOrderHistoriesResponse> findStockOrderHistoriesByCode(@Login AuthInfo authInfo,
+                                                                                 @RequestParam("code") String stockCode) {
+        StockOrderHistoriesResponse response = stockOrderService.findStockOrderHistoriesByCode(authInfo, stockCode);
+        return ResponseEntity.ok(response);
     }
 
 }

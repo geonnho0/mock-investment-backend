@@ -2,7 +2,7 @@ package org.mockInvestment.stockOrder.controller;
 
 import org.junit.jupiter.api.Test;
 import org.mockInvestment.auth.dto.AuthInfo;
-import org.mockInvestment.stockOrder.dto.StockPurchaseRequest;
+import org.mockInvestment.stockOrder.dto.NewStockOrderRequest;
 import org.mockInvestment.util.ControllerTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,10 +18,10 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 class StockOrderControllerTest extends ControllerTest {
 
     @Test
-    void requestStockPurchase() {
-        StockPurchaseRequest request = new StockPurchaseRequest(1.0, 1L);
+    void requestStockBuyOrder() {
+        NewStockOrderRequest request = new NewStockOrderRequest(1.0, 1L, "BUY");
 
-        doNothing().when(stockOrderService).requestStockPurchase(any(AuthInfo.class), anyString(), any(StockPurchaseRequest.class));
+        doNothing().when(stockOrderService).createStockOrder(any(AuthInfo.class), anyString(), any(NewStockOrderRequest.class));
 
         Map<String, String> map = new HashMap<>();
         map.put("Authorization", "Access Token");

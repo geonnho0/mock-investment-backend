@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.mockInvestment.advice.exception.AuthorizationException;
 import org.mockInvestment.member.domain.Member;
+import org.mockInvestment.stock.domain.MemberOwnStock;
 import org.mockInvestment.stock.domain.Stock;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -26,8 +27,11 @@ public class StockOrder {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private MemberOwnStock memberOwnStock;
+
     @CreatedDate
-    private LocalDate orderTime;
+    private LocalDate orderDate;
 
     @ManyToOne
     private Stock stock;
@@ -39,14 +43,18 @@ public class StockOrder {
     @ColumnDefault("false")
     private boolean executed;
 
+    @Enumerated(EnumType.STRING)
+    private StockOrderType stockOrderType;
+
 
     @Builder
-    public StockOrder(Long id, Member member, Stock stock, Double bidPrice, Long volume) {
+    public StockOrder(Long id, Member member, Stock stock, Double bidPrice, Long volume, StockOrderType stockOrderType) {
         this.id = id;
         this.member = member;
         this.stock = stock;
         this.bidPrice = bidPrice;
         this.volume = volume;
+        this.stockOrderType = stockOrderType;
     }
 
     public Double totalBidPrice() {
@@ -60,6 +68,10 @@ public class StockOrder {
     public void checkCancelAuthority(long memberId) {
         if (member.getId() != memberId)
             throw new AuthorizationException();
+    }
+
+    public boolean isBuy() {
+        return stockOrderType == StockOrderType.BUY;
     }
 
 }
