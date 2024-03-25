@@ -4,6 +4,8 @@ import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockInvestment.balance.controller.BalanceController;
+import org.mockInvestment.balance.service.BalanceService;
 import org.mockInvestment.stock.controller.StockInfoController;
 import org.mockInvestment.stock.controller.StockPriceController;
 import org.mockInvestment.stock.service.StockInfoService;
@@ -34,6 +36,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 @WebMvcTest({
+        BalanceController.class,
         StockInfoController.class,
         StockPriceController.class,
         StockOrderController.class
@@ -43,6 +46,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 public class ControllerTest {
 
     protected MockMvcRequestSpecification restDocs;
+
+    @MockBean
+    protected BalanceService balanceService;
 
     @MockBean
     protected StockInfoService stockInfoService;

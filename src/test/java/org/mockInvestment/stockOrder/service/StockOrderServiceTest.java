@@ -1,26 +1,18 @@
 package org.mockInvestment.stockOrder.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockInvestment.advice.exception.*;
 import org.mockInvestment.auth.dto.AuthInfo;
 import org.mockInvestment.member.domain.Member;
-import org.mockInvestment.member.repository.MemberRepository;
 import org.mockInvestment.stock.domain.Stock;
-import org.mockInvestment.stock.repository.StockRepository;
 import org.mockInvestment.stockOrder.domain.PendingStockOrder;
 import org.mockInvestment.stockOrder.domain.StockOrder;
 import org.mockInvestment.stockOrder.domain.StockOrderType;
 import org.mockInvestment.stockOrder.dto.StockOrderCancelRequest;
 import org.mockInvestment.stockOrder.dto.NewStockOrderRequest;
 import org.mockInvestment.stockOrder.dto.StockOrderHistoriesResponse;
-import org.mockInvestment.stockOrder.repository.PendingStockOrderCacheRepository;
-import org.mockInvestment.stockOrder.repository.StockOrderRepository;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockInvestment.util.ServiceTest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,45 +23,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-class StockOrderServiceTest {
-
-    @Mock
-    private MemberRepository memberRepository;
-
-    @Mock
-    private StockRepository stockRepository;
-
-    @Mock
-    private StockOrderRepository stockOrderRepository;
-
-    @Mock
-    private PendingStockOrderCacheRepository pendingStockOrderCacheRepository;
-
-    @InjectMocks
-    private StockOrderService stockOrderService;
-
-    private Member testMember;
-
-    private AuthInfo testAuthInfo;
-
-    private Stock testStock;
-
-    private StockOrder testStockOrder;
-
-
-    @BeforeEach
-    void setUp() {
-        testMember = Member.builder()
-                .id(1L)
-                .role("USER")
-                .name("NAME")
-                .username("USERNAME")
-                .email("EMAIL")
-                .build();
-        testAuthInfo = new AuthInfo(testMember);
-        testStock = new Stock(1L, "CODE");
-    }
+class StockOrderServiceTest extends ServiceTest {
 
     @Test
     @DisplayName("주식 주문 요청 생성")
