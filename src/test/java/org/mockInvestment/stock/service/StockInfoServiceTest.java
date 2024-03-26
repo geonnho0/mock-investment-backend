@@ -1,61 +1,68 @@
 package org.mockInvestment.stock.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockInvestment.advice.exception.InvalidStockCodeException;
-import org.mockInvestment.stock.domain.RecentStockInfo;
+import org.mockInvestment.stock.domain.*;
+import org.mockInvestment.stock.dto.MemberOwnStocksResponse;
 import org.mockInvestment.stock.dto.StockInfoResponse;
-import org.mockInvestment.stock.repository.RecentStockInfoCacheRepository;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockInvestment.stockOrder.domain.StockOrder;
+import org.mockInvestment.stockOrder.domain.StockOrderType;
+import org.mockInvestment.util.ServiceTest;
 
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-class StockInfoServiceTest {
-
-    @InjectMocks
-    private StockInfoService stockInfoService;
-
-    @Mock
-    private RecentStockInfoCacheRepository recentStockInfoCacheRepository;
-
-    RecentStockInfo testStockInfo;
-
-    @BeforeEach
-    void setUp() {
-        testStockInfo = new RecentStockInfo("MOCK", "Mock Stock", 0.1, 0.1, 1.0, 1.5, 0.6, 0.1, 10L);
-    }
+class StockInfoServiceTest extends ServiceTest {
 
     @Test
-    @DisplayName("유효한 코드로 특정 주식의 현재 주가에 대한 자세한 정보를 불러온다.")
-    void findStockInfoDetail() {
-        when(recentStockInfoCacheRepository.findByStockCode(any(String.class)))
+    @DisplayName("캐시에서 특정 주식의 최근 시세를 가져온다.")
+    void findStockInfo_byCache() {
+        when(recentStockInfoCacheRepository.findByStockCode(anyString()))
                 .thenReturn(Optional.ofNullable(testStockInfo));
 
-        StockInfoResponse response = stockInfoService.findStockInfo("Mock Stock");
+        StockInfoResponse response = stockInfoService.findStockInfo("CODE");
 
-        assertThat(response.base()).isEqualTo(0.1);
-        assertThat(response.price()).isEqualTo(1.0);
-        assertThat(response.name()).isEqualTo("Mock Stock");
+        assertThat(response.base()).isEqualTo(testStockInfo.base());
+        assertThat(response.price()).isEqualTo(testStockInfo.curr());
+        assertThat(response.name()).isEqualTo(testStockInfo.name());
+        assertThat(response.symbol()).isEqualTo(testStockInfo.symbol());
     }
 
     @Test
-    @DisplayName("유효하지 않은 코드로 특정 주식의 현재 주가에 대한 자세한 정보를 요청하면, InvalidStockCodeException 을 발생시킨다.")
-    void findStockInfoDetail_exception_invalidCode() {
-        when(recentStockInfoCacheRepository.findByStockCode(any(String.class)))
-                .thenThrow(new InvalidStockCodeException());
+    @DisplayName("캐시에 특정 주식의 최근 시세가 존재하지 않다면, DB 에서 가져온다.")
+    void findStockInfo_byDB() {
+        when(recentStockInfoCacheRepository.findByStockCode(anyString()))
+                .thenReturn(Optional.empty());
+        when(stockRepository.findByCode(anyString()))
+                .thenReturn(Optional.ofNullable(testStock));
+        List<StockPriceCandle> candles = new ArrayList<>();
+        candles.add(new StockPriceCandle(testStock, new StockPrice(1.0, 1.0, 1.0, 1.0, 1.0), 1L));
+        candles.add(new StockPriceCandle(testStock, new StockPrice(1.0, 1.0, 1.0, 1.0, 1.0), 1L));
+        when(stockPriceCandleRepository.findTop2ByStockOrderByDateDesc(any(Stock.class)))
+                .thenReturn(candles);
 
-        assertThatThrownBy(() -> stockInfoService.findStockInfo("XX"))
-                .isInstanceOf(InvalidStockCodeException.class);
+        StockInfoResponse response = stockInfoService.findStockInfo("CODE");
+
+        assertThat(response.name()).isEqualTo(testStock.getName());
+        assertThat(response.base()).isEqualTo(1.0);
+    }
+
+    @Test
+    @DisplayName("본인의 소유 주식들을 반환한다.")
+    void findMyOwnStocks() {
+        when(memberRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(testMember));
+        StockOrder stockOrder = StockOrder.builder().member(testMember).stockOrderType(StockOrderType.BUY).stock(testStock).bidPrice(1.0).volume(1L).build();
+        MemberOwnStock ownStock = MemberOwnStock.builder().id(1L).member(testMember).stock(testStock).stockOrder(stockOrder).build();
+        testMember.addOwnStock(ownStock);
+
+        MemberOwnStocksResponse response = stockInfoService.findMyOwnStocks(testAuthInfo, "CODE");
+
+        assertThat(response.stocks().size()).isEqualTo(1);
+        assertThat(response.stocks().get(0).name()).isEqualTo(ownStock.getStock().getName());
     }
 
 }

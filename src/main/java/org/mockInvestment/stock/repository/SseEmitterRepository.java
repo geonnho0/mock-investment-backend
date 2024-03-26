@@ -1,15 +1,13 @@
 package org.mockInvestment.stock.repository;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Slf4j
 @Repository
-public class EmitterRepository {
+public class SseEmitterRepository {
 
     private static final Long DEFAULT_TIMEOUT = 60L * 1000;
     private final Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
@@ -41,12 +39,16 @@ public class EmitterRepository {
 
     private SseEmitter getOrCreateEmitter(String key) {
         SseEmitter emitter = emitters.get(key);
-        if (emitter == null) {
-            emitter = new SseEmitter(DEFAULT_TIMEOUT);
-            emitter.onCompletion(() -> deleteSseEmitterByKey(key));
-            emitter.onTimeout(() -> deleteSseEmitterByKey(key));
-            emitter.onError((error) -> deleteSseEmitterByKey(key));
-        }
+        if (emitter == null)
+            emitter = createEmitter(key);
+        return emitter;
+    }
+
+    private SseEmitter createEmitter(String key) {
+        SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
+        emitter.onCompletion(() -> deleteSseEmitterByKey(key));
+        emitter.onTimeout(() -> deleteSseEmitterByKey(key));
+        emitter.onError((error) -> deleteSseEmitterByKey(key));
         return emitter;
     }
 

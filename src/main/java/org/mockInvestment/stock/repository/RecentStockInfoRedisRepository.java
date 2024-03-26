@@ -20,8 +20,8 @@ public class RecentStockInfoRedisRepository implements RecentStockInfoCacheRepos
     }
 
     @Override
-    public Optional<RecentStockInfo> findByStockCode(String code) {
-        String jsonString = redisTemplate.opsForValue().get(code);
+    public Optional<RecentStockInfo> findByStockCode(String stockCode) {
+        String jsonString = redisTemplate.opsForValue().get(stockCode);
         if (jsonString == null)
             return Optional.empty();
         return JsonStringMapper.parseJsonString(jsonString, RecentStockInfo.class);

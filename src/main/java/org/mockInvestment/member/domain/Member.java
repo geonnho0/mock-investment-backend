@@ -62,4 +62,12 @@ public class Member {
         stockOrders.remove(stockOrder);
     }
 
+    public void addOwnStock(MemberOwnStock ownStock) {
+        ownStocks.add(ownStock);
+    }
+
+    public void removeOwnStock(MemberOwnStock ownStock) {
+        ownStocks.remove(ownStock);
+    }
+
 }

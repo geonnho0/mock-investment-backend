@@ -1,12 +1,14 @@
 package org.mockInvestment.stock.service;
 
+import org.mockInvestment.advice.exception.SseEmitterEventSendException;
+import org.mockInvestment.advice.exception.SseEmitterNotFoundException;
 import org.mockInvestment.advice.exception.StockNotFoundException;
 import org.mockInvestment.auth.dto.AuthInfo;
 import org.mockInvestment.stock.domain.RecentStockInfo;
 import org.mockInvestment.stock.domain.Stock;
 import org.mockInvestment.stock.domain.StockPriceCandle;
 import org.mockInvestment.stock.dto.*;
-import org.mockInvestment.stock.repository.EmitterRepository;
+import org.mockInvestment.stock.repository.SseEmitterRepository;
 import org.mockInvestment.stock.repository.RecentStockInfoCacheRepository;
 import org.mockInvestment.stock.repository.StockPriceCandleRepository;
 import org.mockInvestment.stock.repository.StockRepository;
@@ -32,14 +34,14 @@ public class StockPriceService {
 
     private final StockPriceCandleRepository stockPriceCandleRepository;
 
-    private final EmitterRepository emitterRepository;
+    private final SseEmitterRepository sseEmitterRepository;
 
 
-    public StockPriceService(StockRepository stockRepository, RecentStockInfoCacheRepository recentStockInfoCacheRepository, StockPriceCandleRepository stockPriceCandleRepository, EmitterRepository emitterRepository) {
+    public StockPriceService(StockRepository stockRepository, RecentStockInfoCacheRepository recentStockInfoCacheRepository, StockPriceCandleRepository stockPriceCandleRepository, SseEmitterRepository sseEmitterRepository) {
         this.stockRepository = stockRepository;
         this.recentStockInfoCacheRepository = recentStockInfoCacheRepository;
         this.stockPriceCandleRepository = stockPriceCandleRepository;
-        this.emitterRepository = emitterRepository;
+        this.sseEmitterRepository = sseEmitterRepository;
     }
 
     public StockPricesResponse findStockPrices(List<String> stockCodes) {
@@ -81,30 +83,32 @@ public class StockPriceService {
         for (String stockCode : stockCodes) {
             Stock stock = stockRepository.findByCode(stockCode)
                     .orElseThrow(StockNotFoundException::new);
-            emitterRepository.createSubscription(key, stock.getId());
+            sseEmitterRepository.createSubscription(key, stock.getId());
             sendToClient(key, new UpdateStockCurrentPriceEvent(stock.getId(), stockCode, 0.0));
         }
-        return emitterRepository.getSseEmitterByKey(key)
+        return sseEmitterRepository.getSseEmitterByKey(key)
                 .orElseThrow();
     }
 
     private void sendToClient(String key, UpdateStockCurrentPriceEvent updateStockCurrentPriceEvent) {
-        SseEmitter emitter = emitterRepository.getSseEmitterByKey(key)
-                .orElseThrow();
+        SseEmitter emitter = sseEmitterRepository.getSseEmitterByKey(key)
+                .orElseThrow(SseEmitterNotFoundException::new);
 
         try {
             emitter.send(SseEmitter.event()
                     .name("stock-price")
+                    .id(key)
                     .data(updateStockCurrentPriceEvent));
         } catch (IOException e) {
             emitter.completeWithError(e);
-            emitterRepository.deleteSseEmitterByKey(key);
+            sseEmitterRepository.deleteSseEmitterByKey(key);
+            throw new SseEmitterEventSendException();
         }
     }
 
     @EventListener
-    protected void publishStockCurrentPrice(UpdateStockCurrentPriceEvent updateStockCurrentPriceEvent) {
-        Set<String> memberIds = emitterRepository.getMemberIdsByStockId(updateStockCurrentPriceEvent.stockId());
+    public void publishStockCurrentPrice(UpdateStockCurrentPriceEvent updateStockCurrentPriceEvent) {
+        Set<String> memberIds = sseEmitterRepository.getMemberIdsByStockId(updateStockCurrentPriceEvent.stockId());
         for (String memberId : memberIds)
             sendToClient(memberId, updateStockCurrentPriceEvent);
     }

@@ -5,7 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.mockInvestment.advice.exception.*;
 import org.mockInvestment.auth.dto.AuthInfo;
 import org.mockInvestment.member.domain.Member;
+import org.mockInvestment.stock.domain.MemberOwnStock;
 import org.mockInvestment.stock.domain.Stock;
+import org.mockInvestment.stock.domain.UpdateStockCurrentPriceEvent;
+import org.mockInvestment.stock.repository.MemberOwnStockRepository;
 import org.mockInvestment.stockOrder.domain.PendingStockOrder;
 import org.mockInvestment.stockOrder.domain.StockOrder;
 import org.mockInvestment.stockOrder.domain.StockOrderType;
@@ -13,6 +16,7 @@ import org.mockInvestment.stockOrder.dto.StockOrderCancelRequest;
 import org.mockInvestment.stockOrder.dto.NewStockOrderRequest;
 import org.mockInvestment.stockOrder.dto.StockOrderHistoriesResponse;
 import org.mockInvestment.util.ServiceTest;
+import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +25,15 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class StockOrderServiceTest extends ServiceTest {
+
+    @Mock
+    private MemberOwnStockRepository memberOwnStockRepository;
+
+    @Mock
+    private MemberOwnStock memberOwnStock;
 
     @Test
     @DisplayName("주식 주문 요청 생성")
@@ -145,7 +155,7 @@ class StockOrderServiceTest extends ServiceTest {
     }
 
     @Test
-    @DisplayName("본인의 주문 요청 기록 조회")
+    @DisplayName("본인의 특정 주식의 주문 요청 기록을 조회한다.")
     void findMyStockOrderHistoriesByCode() {
         List<StockOrder> stockOrders = new ArrayList<>();
         for (long i = 0; i < 5; i++)
@@ -166,6 +176,53 @@ class StockOrderServiceTest extends ServiceTest {
         StockOrderHistoriesResponse response = stockOrderService.findMyStockOrderHistoriesByCode(testAuthInfo, "CODE");
 
         assertThat(response.histories().size()).isEqualTo(5);
+    }
+
+    @Test
+    @DisplayName("코드가 없으면, 본인의 모든 주문 요청 기록을 조회한다.")
+    void findMyStockOrderHistoriesByCode_emptyCode() {
+        List<StockOrder> stockOrders = new ArrayList<>();
+        for (long i = 0; i < 5; i++)
+            stockOrders.add(StockOrder.builder()
+                    .id(i)
+                    .stockOrderType(StockOrderType.BUY)
+                    .member(testMember)
+                    .stock(testStock)
+                    .bidPrice(1.0)
+                    .volume(i).build());
+        when(memberRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(testMember));
+        when(stockOrderRepository.findAllByMember(any(Member.class)))
+                .thenReturn(stockOrders);
+
+        StockOrderHistoriesResponse response = stockOrderService.findMyStockOrderHistoriesByCode(testAuthInfo, "");
+
+        assertThat(response.histories().size()).isEqualTo(5);
+    }
+
+    @Test
+    @DisplayName("대기중인 주문 요청 중, 처리 가능한 요청들을 처리한다.")
+    void executePendingStockOrders() {
+        when(testStockOrder.getMember()).thenReturn(testMember);
+        when(testStockOrder.getStock()).thenReturn(testStock);
+        when(testStockOrder.getBidPrice()).thenReturn(1.0);
+        when(testStockOrder.getVolume()).thenReturn(1L);
+        PendingStockOrder pendingStockOrder = new PendingStockOrder(1L, 1L, 1.0);
+        List<PendingStockOrder> pendingStockOrders = new ArrayList<>();
+        pendingStockOrders.add(pendingStockOrder);
+        when(pendingStockOrderCacheRepository.findAllByStockId(anyLong()))
+                .thenReturn(pendingStockOrders);
+        when(stockOrderRepository.findById(anyLong()))
+                .thenReturn(Optional.ofNullable(testStockOrder));
+        doNothing().when(memberOwnStock).apply(anyDouble(), anyLong(), anyBoolean());
+        when(memberOwnStockRepository.findByMemberAndStock(any(Member.class), any(Stock.class)))
+                .thenReturn(Optional.ofNullable(memberOwnStock));
+
+        UpdateStockCurrentPriceEvent event = new UpdateStockCurrentPriceEvent(1L, "CODE", 1.0);
+        stockOrderService.executePendingStockOrders(event);
+        verify(testStockOrder).execute();
+        verify(memberOwnStock).apply(testStockOrder.getBidPrice(), testStockOrder.getVolume(), testStockOrder.isBuy());
+        verify(pendingStockOrderCacheRepository).remove(pendingStockOrder);
     }
 
     private StockOrder createTestStockOrder(double bidPrice, long volume) {

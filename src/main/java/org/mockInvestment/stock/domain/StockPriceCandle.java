@@ -28,7 +28,8 @@ public class StockPriceCandle {
     private Long volume;
 
 
-    public StockPriceCandle(StockPrice price, long volume) {
+    public StockPriceCandle(Stock stock, StockPrice price, long volume) {
+        this.stock = stock;
         this.price = price;
         this.volume = volume;
     }

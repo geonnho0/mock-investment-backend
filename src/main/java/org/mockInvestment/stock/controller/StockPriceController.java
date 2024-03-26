@@ -57,26 +57,27 @@ public class StockPriceController {
     }
 
     @GetMapping("/{code}/candles/1w")
-    public ResponseEntity<StockPriceCandlesResponse> findStockPriceHistoriesForOneWeek(@PathVariable("code") String stockCode) {
+    public ResponseEntity<StockPriceCandlesResponse> findStockPriceCandlesForOneWeek(@PathVariable("code") String stockCode) {
         StockPriceCandlesResponse response = stockPriceService.findStockPriceCandles(stockCode, oneWeekPeriodExtractor);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{code}/candles/3m")
-    public ResponseEntity<StockPriceCandlesResponse> findStockPriceHistoriesForThreeMonths(@PathVariable("code") String stockCode) {
+    public ResponseEntity<StockPriceCandlesResponse> findStockPriceCandlesForThreeMonths(@PathVariable("code") String stockCode) {
         StockPriceCandlesResponse response = stockPriceService.findStockPriceCandles(stockCode, threeMonthsPeriodExtractor);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{code}/candles/1y")
-    public ResponseEntity<StockPriceCandlesResponse> findStockPriceHistoriesForOneYear(@PathVariable("code") String stockCode) {
+    public ResponseEntity<StockPriceCandlesResponse> findStockPriceCandlesForOneYear(@PathVariable("code") String stockCode) {
         StockPriceCandlesResponse response = stockPriceService.findStockPriceCandles(stockCode, oneYearPeriodExtractor);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{code}/candles/5y")
-    public ResponseEntity<StockPriceCandlesResponse> findStockPriceHistoriesForFiveYears(@PathVariable("code") String stockCode) {
+    public ResponseEntity<StockPriceCandlesResponse> findStockPriceCandlesForFiveYears(@PathVariable("code") String stockCode) {
         StockPriceCandlesResponse response = stockPriceService.findStockPriceCandles(stockCode, fiveYearsPeriodExtractor);
         return ResponseEntity.ok(response);
     }
+
 }
