@@ -3,6 +3,7 @@ package org.mockInvestment.stock.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.mockInvestment.stockOrder.domain.StockOrder;
 
 import java.util.List;
 
@@ -22,10 +23,14 @@ public class Stock {
     private String name;
 
     @OneToMany(mappedBy = "stock")
-    private List<StockPriceHistory> priceHistories;
+    private List<StockPriceCandle> priceHistories;
 
-    public Stock(String name) {
-        this.name = name;
+    @OneToMany(mappedBy = "stock")
+    private List<StockOrder> orders;
+
+    public Stock(Long id, String code) {
+        this.id = id;
+        this.code = code;
     }
 
 }

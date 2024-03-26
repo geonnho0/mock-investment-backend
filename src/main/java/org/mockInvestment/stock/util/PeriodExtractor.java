@@ -4,13 +4,15 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-public abstract class PeriodExtractor {
+public interface PeriodExtractor {
 
-    protected ZonedDateTime now = ZonedDateTime.now(ZoneId.of("America/New_York"));
+    LocalDate getStart();
 
-    public abstract LocalDate getStart();
+    default ZonedDateTime getNow() {
+        return ZonedDateTime.now(ZoneId.of("America/New_York"));
+    }
 
-    public LocalDate getEnd() {
-        return now.toLocalDate();
+    default LocalDate getEnd() {
+        return getNow().toLocalDate();
     }
 }

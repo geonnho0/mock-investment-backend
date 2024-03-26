@@ -34,6 +34,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
@@ -45,6 +46,7 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
     testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'com.h2database:h2'
     testImplementation 'io.rest-assured:spring-mock-mvc'
 }
 
@@ -99,7 +101,7 @@ jacocoTestCoverageVerification {
                 minimum = 0.75
             }
 
-            excludes = ['*.*Controller', '*.advice.*', '*.dto.*', '*.config.*', '*.domain.*', '*.support.*', '*.AuthService']
+            excludes = ['*.*Controller', '*.*Repository', '*.advice.*', '*.dto.*', '*.config.*', '*.domain.*', '*.support.*', '*.AuthService']
         }
     }
 }

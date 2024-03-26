@@ -42,15 +42,17 @@ public class AuthService extends DefaultOAuth2UserService {
     private Member getOrCreateMember(OAuth2UserAttributes oAuth2UserAttributes) {
         Optional<Member> member = memberRepository.findByUsername(oAuth2UserAttributes.getUsername());
         if (member.isEmpty()) {
-            return memberRepository.save(Member.builder()
-                .name(oAuth2UserAttributes.getName())
-                .email(oAuth2UserAttributes.getEmail())
-                .role("ROLE_USER")
-                .username(oAuth2UserAttributes.getUsername())
-                .build());
+            Member newMember = Member.builder()
+                    .name(oAuth2UserAttributes.getName())
+                    .email(oAuth2UserAttributes.getEmail())
+                    .role("ROLE_USER")
+                    .username(oAuth2UserAttributes.getUsername())
+                    .build();
+            return memberRepository.save(newMember);
         }
         member.get().setEmail(oAuth2UserAttributes.getEmail());
         member.get().setName(oAuth2UserAttributes.getName());
         return member.get();
     }
+
 }
