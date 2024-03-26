@@ -26,4 +26,5 @@ public class StockPrice {
         this.close = close;
         this.curr = curr;
     }
+
 }

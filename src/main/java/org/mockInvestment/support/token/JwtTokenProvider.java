@@ -29,10 +29,10 @@ public class JwtTokenProvider {
         Date expiration = new Date(now.getTime() + expireMilliseconds);
 
         return Jwts.builder()
-                .claim("id", authInfo.id())
-                .claim("name", authInfo.name())
-                .claim("username", authInfo.username())
-                .claim("role", authInfo.role())
+                .claim("id", authInfo.getId())
+                .claim("name", authInfo.getName())
+                .claim("username", authInfo.getUsername())
+                .claim("role", authInfo.getRole())
                 .setIssuedAt(now)
                 .setExpiration(expiration)
                 .signWith(signingKey)

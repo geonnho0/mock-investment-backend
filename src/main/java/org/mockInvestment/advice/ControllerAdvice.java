@@ -1,5 +1,6 @@
 package org.mockInvestment.advice;
 
+import org.mockInvestment.advice.exception.general.BadRequestException;
 import org.mockInvestment.advice.exception.general.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,4 +26,11 @@ public class ControllerAdvice {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(message));
     }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(e.getMessage()));
+    }
+
 }

@@ -7,9 +7,9 @@ import java.time.LocalDate;
 
 @Component
 @Qualifier("threeMonthsPeriodExtractor")
-public class ThreeMonthsPeriodExtractor extends PeriodExtractor {
+public class ThreeMonthsPeriodExtractor implements PeriodExtractor {
     @Override
     public LocalDate getStart() {
-        return now.minusMonths(3).toLocalDate();
+        return getNow().minusMonths(3).toLocalDate();
     }
 }
