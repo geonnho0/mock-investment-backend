@@ -89,9 +89,8 @@ public class StockOrderService {
     public void executePendingStockOrders(UpdateStockCurrentPriceEvent updateStockCurrentPriceEvent) {
         List<PendingStockOrder> pendingStockOrders = pendingStockOrderCacheRepository.findAllByStockId(updateStockCurrentPriceEvent.stockId());
         pendingStockOrders.forEach(pendingStockOrder -> {
-            if (pendingStockOrder.canConclude(updateStockCurrentPriceEvent.curr())) {
+            if (pendingStockOrder.canConclude(updateStockCurrentPriceEvent.curr()))
                 executePendingStockOrder(pendingStockOrder);
-            }
         });
     }
 
@@ -100,7 +99,14 @@ public class StockOrderService {
                 .orElseThrow(StockOrderNotFoundException::new);
         stockOrder.execute();
         MemberOwnStock memberOwnStock = memberOwnStockRepository.findByMemberAndStock(stockOrder.getMember(), stockOrder.getStock())
-                        .orElseThrow();
+                .orElseGet(() -> {
+                    MemberOwnStock ownStock = MemberOwnStock.builder()
+                            .member(stockOrder.getMember())
+                            .stock(stockOrder.getStock())
+                            .stockOrder(stockOrder)
+                            .build();
+                    return memberOwnStockRepository.save(ownStock);
+                });
         memberOwnStock.apply(stockOrder.getBidPrice(), stockOrder.getVolume(), stockOrder.isBuy());
         pendingStockOrderCacheRepository.remove(pendingStockOrder);
     }
