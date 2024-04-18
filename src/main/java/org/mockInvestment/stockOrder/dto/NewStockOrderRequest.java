@@ -1,5 +1,7 @@
 package org.mockInvestment.stockOrder.dto;
 
 
-public record NewStockOrderRequest(double bidPrice, long volume, String orderType) {
+import java.time.LocalDate;
+
+public record NewStockOrderRequest(double bidPrice, long quantity, String orderType, LocalDate orderDate) {
 }

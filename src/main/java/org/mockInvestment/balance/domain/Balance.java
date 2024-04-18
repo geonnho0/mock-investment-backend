@@ -1,13 +1,15 @@
 package org.mockInvestment.balance.domain;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
-import org.mockInvestment.advice.exception.PaymentFailureException;
+import org.mockInvestment.balance.exception.PaymentFailureException;
 import org.mockInvestment.member.domain.Member;
 
 @Entity
-@NoArgsConstructor
+@Table(name = "balance")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Balance {
 
     @Id
@@ -26,19 +28,23 @@ public class Balance {
         balance = 1000000.0;
     }
 
-    public void purchase(Double price) {
-        if (balance - price < 0) {
+    public void pay(Double price) {
+        if (balance - price < 0)
             throw new PaymentFailureException();
-        }
+
         balance -= price;
     }
 
-    public void cancelPayment(Double price) {
+    public void receive(Double price) {
         balance += price;
     }
 
     public double getBalance() {
         return balance;
+    }
+
+    public void reset() {
+        balance = 1000000.0;
     }
 
 }

@@ -1,76 +1,119 @@
 package org.mockInvestment.stockOrder.repository;
 
-import org.mockInvestment.advice.exception.JsonStringDeserializationFailureException;
-import org.mockInvestment.common.JsonStringMapper;
+import lombok.RequiredArgsConstructor;
+import org.mockInvestment.global.common.JsonStringMapper;
+import org.mockInvestment.global.error.exception.JsonStringDeserializationFailureException;
 import org.mockInvestment.stockOrder.domain.PendingStockOrder;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SetOperations;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Repository
+@RequiredArgsConstructor
 public class PendingStockOrderRedisRepository implements PendingStockOrderCacheRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
 
-
-    public PendingStockOrderRedisRepository(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
 
     @Override
     public void save(PendingStockOrder entity) {
         SetOperations<String, String> operations = redisTemplate.opsForSet();
         String jsonString = JsonStringMapper.toJsonString(entity)
                 .orElseThrow(JsonStringDeserializationFailureException::new);
-        operations.add(String.valueOf(entity.stockId()), jsonString);
+        operations.add(entity.code(), jsonString);
     }
 
     @Override
-    public List<PendingStockOrder> findAllByStockId(long stockId) {
-        Set<String> jsonStrings = redisTemplate.opsForSet().members(String.valueOf(stockId));
-        List<PendingStockOrder> pendingStockOrders = new ArrayList<>();
-        if (jsonStrings == null || jsonStrings.isEmpty())
-            return pendingStockOrders;
+    public List<PendingStockOrder> findAllByStockCode(String stockCode) {
+        Set<String> jsonStrings = get(stockCode);
+        return parseJsonStrings(jsonStrings);
+    }
 
-        for (String jsonString : jsonStrings) {
-            Optional<PendingStockOrder> pendingStockOrder = JsonStringMapper.parseJsonString(jsonString, PendingStockOrder.class);
-            if (pendingStockOrder.isEmpty())
-                continue;
-            pendingStockOrders.add(pendingStockOrder.get());
+    @Override
+    public List<PendingStockOrder> findAllByMemberId(Long memberId) {
+        Set<String> stockCodes = findAllRedisKeys();
+        List<PendingStockOrder> pendingStockOrders = new ArrayList<>();
+        for (String stockCode : stockCodes) {
+            pendingStockOrders.addAll(findAllByStockCodeAndMemberId(stockCode, memberId));
         }
 
         return pendingStockOrders;
     }
 
     @Override
-    public void remove(PendingStockOrder entity) {
+    public void delete(PendingStockOrder entity) {
         SetOperations<String, String> operations = redisTemplate.opsForSet();
         String jsonString = JsonStringMapper.toJsonString(entity)
                 .orElseThrow(JsonStringDeserializationFailureException::new);
-        operations.remove(String.valueOf(entity.stockId()), jsonString);
+        operations.remove(entity.code(), jsonString);
+        deleteKeyIfEmpty(entity.code());
     }
 
     @Override
-    public Optional<PendingStockOrder> findByStockIdAndStockOrderId(long stockId, long stockOrderId) {
-        Set<String> jsonStrings = redisTemplate.opsForSet().members(String.valueOf(stockId));
-        if (jsonStrings == null || jsonStrings.isEmpty())
-            return Optional.empty();
+    public void deleteById(Long stockOrderId) {
+        Optional<PendingStockOrder> pendingStockOrder = findById(stockOrderId);
+        pendingStockOrder.ifPresent(this::delete);
+    }
 
-        for (String jsonString : jsonStrings) {
-            Optional<PendingStockOrder> pendingStockOrder = JsonStringMapper.parseJsonString(jsonString, PendingStockOrder.class);
-            if (pendingStockOrder.isEmpty())
-                continue;
-            if (pendingStockOrder.get().orderId() == stockOrderId) {
-                return pendingStockOrder;
-            }
+    @Override
+    public void deleteAll() {
+        Set<String> stockCodes = findAllRedisKeys();
+        for (String stockCode : stockCodes) {
+            redisTemplate.delete(stockCode);
         }
+    }
 
-        return Optional.empty();
+    private Set<String> findAllRedisKeys() {
+        Set<String> stockCodes = redisTemplate.keys("*");
+        if (stockCodes == null || stockCodes.isEmpty())
+            return Set.of();
+        return stockCodes;
+    }
+
+    private List<PendingStockOrder> findAllByStockCodeAndMemberId(String stockCode, Long memberId) {
+        return findAllByStockCode(stockCode).stream()
+                .filter(pendingStockOrder -> pendingStockOrder.orderedBy(memberId))
+                .toList();
+    }
+
+    private Optional<PendingStockOrder> findById(Long stockOrderId) {
+        List<PendingStockOrder> pendingStockOrders = findAll();
+        return pendingStockOrders.stream()
+                .filter(pendingStockOrder -> Objects.equals(pendingStockOrder.id(), stockOrderId))
+                .findFirst();
+    }
+
+    private List<PendingStockOrder> findAll() {
+        Set<String> stockCodes = findAllRedisKeys();
+        List<PendingStockOrder> pendingStockOrders = new ArrayList<>();
+        for (String stockCode : stockCodes) {
+            Set<String> jsonStrings = get(stockCode);
+            pendingStockOrders.addAll(parseJsonStrings(jsonStrings));
+        }
+        return pendingStockOrders;
+    }
+
+    private Set<String> get(String redisKey) {
+        return redisTemplate.opsForSet().members(redisKey);
+    }
+
+    private List<PendingStockOrder> parseJsonStrings(Set<String> jsonStrings) {
+        if (jsonStrings.isEmpty())
+            return List.of();
+
+        return jsonStrings.stream()
+                .map((jsonString) -> JsonStringMapper.parseJsonString(jsonString, PendingStockOrder.class))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+    }
+
+    private void deleteKeyIfEmpty(String redisKey) {
+        Set<String> jsonStrings = get(redisKey);
+        if (jsonStrings == null || jsonStrings.isEmpty())
+            redisTemplate.delete(redisKey);
     }
 
 }
