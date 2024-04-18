@@ -447,10 +447,21 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_주식_관리">1. 주식 관리</a>
+<li><a href="#_주가_관련">1. 주가 관련</a>
 <ul class="sectlevel2">
 <li><a href="#_현재_주가_조회">1.1. 현재 주가 조회</a></li>
-<li><a href="#_특정_기간_주가_조회_1w_3m_1y_5y">1.2. 특정 기간 주가 조회 (1w, 3m, 1y, 5y)</a></li>
+<li><a href="#_특정_기간_주가_조회">1.2. 특정 기간 주가 조회</a></li>
+</ul>
+</li>
+<li><a href="#_주식_주문">2. 주식 주문</a>
+<ul class="sectlevel2">
+<li><a href="#_주식_주문_요청_생성">2.1. 주식 주문 요청 생성</a></li>
+<li><a href="#_주식_주문_요청_조회">2.2. 주식 주문 요청 조회</a></li>
+</ul>
+</li>
+<li><a href="#_계좌_관련">3. 계좌 관련</a>
+<ul class="sectlevel2">
+<li><a href="#_내_계좌_금액_조회">3.1. 내 계좌 금액 조회</a></li>
 </ul>
 </li>
 </ul>
@@ -458,7 +469,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_주식_관리"><a class="link" href="#_주식_관리">1. 주식 관리</a></h2>
+<h2 id="_주가_관련"><a class="link" href="#_주가_관련">1. 주가 관련</a></h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_현재_주가_조회"><a class="link" href="#_현재_주가_조회">1.1. 현재 주가 조회</a></h3>
@@ -468,7 +479,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h5 id="_성공_http_request"><a class="link" href="#_성공_http_request">HTTP request</a></h5>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /stock-prices?code=US1 HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /stock-prices?code=CODE HTTP/1.1
 Content-Type: application/json
 Content-Type: application/json
 Host: localhost:8080</code></pre>
@@ -486,14 +497,34 @@ Vary: Access-Control-Request-Headers
 Content-Type: application/json
 Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Expires: 0
-Content-Length: 103
+Content-Length: 469
 
 {
-  "stocks" : [ {
-    "code" : "US1",
-    "name" : "MSFT",
+  "prices" : [ {
+    "code" : "CODE",
+    "name" : "Stock Name",
     "base" : 2.0,
-    "price" : 3.0
+    "curr" : 3.0
+  }, {
+    "code" : "CODE",
+    "name" : "Stock Name",
+    "base" : 3.0,
+    "curr" : 4.0
+  }, {
+    "code" : "CODE",
+    "name" : "Stock Name",
+    "base" : 4.0,
+    "curr" : 5.0
+  }, {
+    "code" : "CODE",
+    "name" : "Stock Name",
+    "base" : 5.0,
+    "curr" : 6.0
+  }, {
+    "code" : "CODE",
+    "name" : "Stock Name",
+    "base" : 6.0,
+    "curr" : 7.0
   } ]
 }</code></pre>
 </div>
@@ -508,7 +539,7 @@ Content-Length: 103
 <h6 id="_유효하지_않은_코드_http_request"><a class="link" href="#_유효하지_않은_코드_http_request">HTTP request</a></h6>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /stock-prices?code=XXX HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /stock-prices?code=INVALID-CODE HTTP/1.1
 Content-Type: application/json
 Content-Type: application/json
 Host: localhost:8080</code></pre>
@@ -538,22 +569,24 @@ Content-Length: 61
 </div>
 </div>
 <div class="sect2">
-<h3 id="_특정_기간_주가_조회_1w_3m_1y_5y"><a class="link" href="#_특정_기간_주가_조회_1w_3m_1y_5y">1.2. 특정 기간 주가 조회 (1w, 3m, 1y, 5y)</a></h3>
+<h3 id="_특정_기간_주가_조회"><a class="link" href="#_특정_기간_주가_조회">1.2. 특정 기간 주가 조회</a></h3>
 <div class="sect3">
-<h4 id="_성공_2"><a class="link" href="#_성공_2">1.2.1. 성공</a></h4>
+<h4 id="_최근_1주일"><a class="link" href="#_최근_1주일">1.2.1. 최근 1주일</a></h4>
 <div class="sect4">
-<h5 id="_성공_2_http_request"><a class="link" href="#_성공_2_http_request">HTTP request</a></h5>
+<h5 id="_성공_2"><a class="link" href="#_성공_2">성공</a></h5>
+<div class="sect5">
+<h6 id="_성공_2_http_request"><a class="link" href="#_성공_2_http_request">HTTP request</a></h6>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /stock-prices/US1/candles/3m HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /stock-prices/CODE/candles/1w HTTP/1.1
 Content-Type: application/json
 Content-Type: application/json
 Host: localhost:8080</code></pre>
 </div>
 </div>
 </div>
-<div class="sect4">
-<h5 id="_성공_2_http_response"><a class="link" href="#_성공_2_http_response">HTTP response</a></h5>
+<div class="sect5">
+<h6 id="_성공_2_http_response"><a class="link" href="#_성공_2_http_response">HTTP response</a></h6>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -563,33 +596,228 @@ Vary: Access-Control-Request-Headers
 Content-Type: application/json
 Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Expires: 0
-Content-Length: 454
+Content-Length: 455
 
 {
-  "code" : "US1",
+  "code" : "CODE",
   "candles" : [ {
-    "dt" : "2024-03-08",
+    "dt" : "2024-03-26",
     "o" : 1.0,
     "c" : 1.0,
     "l" : 1.0,
     "h" : 1.0,
     "v" : 1
   }, {
-    "dt" : "2024-03-08",
+    "dt" : "2024-03-26",
     "o" : 1.0,
     "c" : 1.0,
     "l" : 1.0,
     "h" : 1.0,
     "v" : 1
   }, {
-    "dt" : "2024-03-08",
+    "dt" : "2024-03-26",
     "o" : 1.0,
     "c" : 1.0,
     "l" : 1.0,
     "h" : 1.0,
     "v" : 1
   }, {
-    "dt" : "2024-03-08",
+    "dt" : "2024-03-26",
+    "o" : 1.0,
+    "c" : 1.0,
+    "l" : 1.0,
+    "h" : 1.0,
+    "v" : 1
+  } ]
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_최근_3개월"><a class="link" href="#_최근_3개월">1.2.2. 최근 3개월</a></h4>
+<div class="sect4">
+<h5 id="_성공_3"><a class="link" href="#_성공_3">성공</a></h5>
+<div class="sect5">
+<h6 id="_성공_3_http_request"><a class="link" href="#_성공_3_http_request">HTTP request</a></h6>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /stock-prices/CODE/candles/3m HTTP/1.1
+Content-Type: application/json
+Content-Type: application/json
+Host: localhost:8080</code></pre>
+</div>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_성공_3_http_response"><a class="link" href="#_성공_3_http_response">HTTP response</a></h6>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Content-Type: application/json
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Expires: 0
+Content-Length: 455
+
+{
+  "code" : "CODE",
+  "candles" : [ {
+    "dt" : "2024-03-26",
+    "o" : 1.0,
+    "c" : 1.0,
+    "l" : 1.0,
+    "h" : 1.0,
+    "v" : 1
+  }, {
+    "dt" : "2024-03-26",
+    "o" : 1.0,
+    "c" : 1.0,
+    "l" : 1.0,
+    "h" : 1.0,
+    "v" : 1
+  }, {
+    "dt" : "2024-03-26",
+    "o" : 1.0,
+    "c" : 1.0,
+    "l" : 1.0,
+    "h" : 1.0,
+    "v" : 1
+  }, {
+    "dt" : "2024-03-26",
+    "o" : 1.0,
+    "c" : 1.0,
+    "l" : 1.0,
+    "h" : 1.0,
+    "v" : 1
+  } ]
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_최근_1년"><a class="link" href="#_최근_1년">1.2.3. 최근 1년</a></h4>
+<div class="sect4">
+<h5 id="_성공_4"><a class="link" href="#_성공_4">성공</a></h5>
+<div class="sect5">
+<h6 id="_성공_4_http_request"><a class="link" href="#_성공_4_http_request">HTTP request</a></h6>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /stock-prices/CODE/candles/1y HTTP/1.1
+Content-Type: application/json
+Content-Type: application/json
+Host: localhost:8080</code></pre>
+</div>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_성공_4_http_response"><a class="link" href="#_성공_4_http_response">HTTP response</a></h6>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Content-Type: application/json
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Expires: 0
+Content-Length: 455
+
+{
+  "code" : "CODE",
+  "candles" : [ {
+    "dt" : "2024-03-26",
+    "o" : 1.0,
+    "c" : 1.0,
+    "l" : 1.0,
+    "h" : 1.0,
+    "v" : 1
+  }, {
+    "dt" : "2024-03-26",
+    "o" : 1.0,
+    "c" : 1.0,
+    "l" : 1.0,
+    "h" : 1.0,
+    "v" : 1
+  }, {
+    "dt" : "2024-03-26",
+    "o" : 1.0,
+    "c" : 1.0,
+    "l" : 1.0,
+    "h" : 1.0,
+    "v" : 1
+  }, {
+    "dt" : "2024-03-26",
+    "o" : 1.0,
+    "c" : 1.0,
+    "l" : 1.0,
+    "h" : 1.0,
+    "v" : 1
+  } ]
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_최근_5년"><a class="link" href="#_최근_5년">1.2.4. 최근 5년</a></h4>
+<div class="sect4">
+<h5 id="_성공_5"><a class="link" href="#_성공_5">성공</a></h5>
+<div class="sect5">
+<h6 id="_성공_5_http_request"><a class="link" href="#_성공_5_http_request">HTTP request</a></h6>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /stock-prices/CODE/candles/5y HTTP/1.1
+Content-Type: application/json
+Content-Type: application/json
+Host: localhost:8080</code></pre>
+</div>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_성공_5_http_response"><a class="link" href="#_성공_5_http_response">HTTP response</a></h6>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Content-Type: application/json
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Expires: 0
+Content-Length: 455
+
+{
+  "code" : "CODE",
+  "candles" : [ {
+    "dt" : "2024-03-26",
+    "o" : 1.0,
+    "c" : 1.0,
+    "l" : 1.0,
+    "h" : 1.0,
+    "v" : 1
+  }, {
+    "dt" : "2024-03-26",
+    "o" : 1.0,
+    "c" : 1.0,
+    "l" : 1.0,
+    "h" : 1.0,
+    "v" : 1
+  }, {
+    "dt" : "2024-03-26",
+    "o" : 1.0,
+    "c" : 1.0,
+    "l" : 1.0,
+    "h" : 1.0,
+    "v" : 1
+  }, {
+    "dt" : "2024-03-26",
     "o" : 1.0,
     "c" : 1.0,
     "l" : 1.0,
@@ -605,10 +833,328 @@ Content-Length: 454
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_주식_주문"><a class="link" href="#_주식_주문">2. 주식 주문</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_주식_주문_요청_생성"><a class="link" href="#_주식_주문_요청_생성">2.1. 주식 주문 요청 생성</a></h3>
+<div class="sect3">
+<h4 id="_구매_요청"><a class="link" href="#_구매_요청">2.1.1. 구매 요청</a></h4>
+<div class="sect4">
+<h5 id="_성공_6"><a class="link" href="#_성공_6">성공</a></h5>
+<div class="sect5">
+<h6 id="_성공_6_http_request"><a class="link" href="#_성공_6_http_request">HTTP request</a></h6>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /stocks/CODE/order HTTP/1.1
+Content-Type: application/json
+Content-Type: application/json
+Content-Length: 61
+Host: localhost:8080
+Cookie: Authorization=Access Token
+
+{
+  "bidPrice" : 1.0,
+  "volume" : 1,
+  "orderType" : "BUY"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_성공_6_http_response"><a class="link" href="#_성공_6_http_response">HTTP response</a></h6>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 201 Created
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Expires: 0</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_판매_요청"><a class="link" href="#_판매_요청">2.1.2. 판매 요청</a></h4>
+<div class="sect4">
+<h5 id="_성공_7"><a class="link" href="#_성공_7">성공</a></h5>
+<div class="sect5">
+<h6 id="_성공_7_http_request"><a class="link" href="#_성공_7_http_request">HTTP request</a></h6>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /stocks/CODE/order HTTP/1.1
+Content-Type: application/json
+Content-Type: application/json
+Content-Length: 62
+Host: localhost:8080
+Cookie: Authorization=Access Token
+
+{
+  "bidPrice" : 1.0,
+  "volume" : 1,
+  "orderType" : "SELL"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_성공_7_http_response"><a class="link" href="#_성공_7_http_response">HTTP response</a></h6>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 201 Created
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Expires: 0</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_주식_주문_요청이_유효하지_않을_경우"><a class="link" href="#_주식_주문_요청이_유효하지_않을_경우">2.1.3. 주식 주문 요청이 유효하지 않을 경우</a></h4>
+<div class="sect4">
+<h5 id="_실패_2"><a class="link" href="#_실패_2">실패</a></h5>
+<div class="sect5">
+<h6 id="_실패_2_http_request"><a class="link" href="#_실패_2_http_request">HTTP request</a></h6>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /stocks/CODE/order HTTP/1.1
+Content-Type: application/json
+Content-Type: application/json
+Content-Length: 61
+Host: localhost:8080
+Cookie: Authorization=Access Token
+
+{
+  "bidPrice" : 1.0,
+  "volume" : 1,
+  "orderType" : "XXX"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_실패_2_http_response"><a class="link" href="#_실패_2_http_response">HTTP response</a></h6>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Content-Type: application/json
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Expires: 0
+Content-Length: 70
+
+{
+  "message" : "주식 구매 요청이 유효하지 않습니다."
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_주식_주문_요청_조회"><a class="link" href="#_주식_주문_요청_조회">2.2. 주식 주문 요청 조회</a></h3>
+<div class="sect3">
+<h4 id="_특정_유저의_요청_기록_조회"><a class="link" href="#_특정_유저의_요청_기록_조회">2.2.1. 특정 유저의 요청 기록 조회</a></h4>
+<div class="sect4">
+<h5 id="_성공_8"><a class="link" href="#_성공_8">성공</a></h5>
+<div class="sect5">
+<h6 id="_성공_8_http_request"><a class="link" href="#_성공_8_http_request">HTTP request</a></h6>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /stocks/orders?member=1 HTTP/1.1
+Content-Type: application/json
+Content-Type: application/json
+Host: localhost:8080
+Cookie: Authorization=Access Token</code></pre>
+</div>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_성공_8_http_response"><a class="link" href="#_성공_8_http_response">HTTP response</a></h6>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Content-Type: application/json
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Expires: 0
+Content-Length: 742
+
+{
+  "histories" : [ {
+    "id" : 0,
+    "orderDate" : "2024-03-26",
+    "orderType" : "BUY",
+    "bidPrice" : 1.0,
+    "volume" : 1,
+    "name" : "STOCK NAME"
+  }, {
+    "id" : 1,
+    "orderDate" : "2024-03-26",
+    "orderType" : "BUY",
+    "bidPrice" : 2.0,
+    "volume" : 2,
+    "name" : "STOCK NAME"
+  }, {
+    "id" : 2,
+    "orderDate" : "2024-03-26",
+    "orderType" : "BUY",
+    "bidPrice" : 3.0,
+    "volume" : 3,
+    "name" : "STOCK NAME"
+  }, {
+    "id" : 3,
+    "orderDate" : "2024-03-26",
+    "orderType" : "BUY",
+    "bidPrice" : 4.0,
+    "volume" : 4,
+    "name" : "STOCK NAME"
+  }, {
+    "id" : 4,
+    "orderDate" : "2024-03-26",
+    "orderType" : "BUY",
+    "bidPrice" : 5.0,
+    "volume" : 5,
+    "name" : "STOCK NAME"
+  } ]
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_본인의_요청_기록_조회"><a class="link" href="#_본인의_요청_기록_조회">2.2.2. 본인의 요청 기록 조회</a></h4>
+<div class="sect4">
+<h5 id="_성공_9"><a class="link" href="#_성공_9">성공</a></h5>
+<div class="sect5">
+<h6 id="_성공_9_http_request"><a class="link" href="#_성공_9_http_request">HTTP request</a></h6>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /stocks/orders/me?code=CODE HTTP/1.1
+Content-Type: application/json
+Content-Type: application/json
+Host: localhost:8080
+Cookie: Authorization=Access Token</code></pre>
+</div>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_성공_9_http_response"><a class="link" href="#_성공_9_http_response">HTTP response</a></h6>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Content-Type: application/json
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Expires: 0
+Content-Length: 742
+
+{
+  "histories" : [ {
+    "id" : 0,
+    "orderDate" : "2024-03-26",
+    "orderType" : "BUY",
+    "bidPrice" : 1.0,
+    "volume" : 1,
+    "name" : "STOCK NAME"
+  }, {
+    "id" : 1,
+    "orderDate" : "2024-03-26",
+    "orderType" : "BUY",
+    "bidPrice" : 2.0,
+    "volume" : 2,
+    "name" : "STOCK NAME"
+  }, {
+    "id" : 2,
+    "orderDate" : "2024-03-26",
+    "orderType" : "BUY",
+    "bidPrice" : 3.0,
+    "volume" : 3,
+    "name" : "STOCK NAME"
+  }, {
+    "id" : 3,
+    "orderDate" : "2024-03-26",
+    "orderType" : "BUY",
+    "bidPrice" : 4.0,
+    "volume" : 4,
+    "name" : "STOCK NAME"
+  }, {
+    "id" : 4,
+    "orderDate" : "2024-03-26",
+    "orderType" : "BUY",
+    "bidPrice" : 5.0,
+    "volume" : 5,
+    "name" : "STOCK NAME"
+  } ]
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_계좌_관련"><a class="link" href="#_계좌_관련">3. 계좌 관련</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_내_계좌_금액_조회"><a class="link" href="#_내_계좌_금액_조회">3.1. 내 계좌 금액 조회</a></h3>
+<div class="sect3">
+<h4 id="_성공_10"><a class="link" href="#_성공_10">3.1.1. 성공</a></h4>
+<div class="sect4">
+<h5 id="_성공_10_http_request"><a class="link" href="#_성공_10_http_request">HTTP request</a></h5>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /balance/me HTTP/1.1
+Content-Type: application/json
+Content-Type: application/json
+Host: localhost:8080
+Cookie: Authorization=Access Token</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_성공_10_http_response"><a class="link" href="#_성공_10_http_response">HTTP response</a></h5>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Content-Type: application/json
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Expires: 0
+Content-Length: 21
+
+{
+  "balance" : 1.0
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1-SNAPSHOT<br>
-Last updated 2024-03-03 22:37:06 +0800
+Last updated 2024-03-25 23:24:55 +0800
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
