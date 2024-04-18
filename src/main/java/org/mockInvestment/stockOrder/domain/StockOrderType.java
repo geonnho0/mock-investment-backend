@@ -1,7 +1,7 @@
 package org.mockInvestment.stockOrder.domain;
 
 import lombok.Getter;
-import org.mockInvestment.advice.exception.InvalidStockOrderTypeException;
+import org.mockInvestment.stockOrder.exception.InvalidStockOrderTypeException;
 
 @Getter
 public enum StockOrderType {

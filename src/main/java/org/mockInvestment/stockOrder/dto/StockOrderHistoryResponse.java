@@ -2,18 +2,22 @@ package org.mockInvestment.stockOrder.dto;
 
 
 import org.mockInvestment.stockOrder.domain.StockOrder;
+import org.mockInvestment.stockTicker.domain.StockTicker;
 
 import java.time.LocalDate;
 
-public record StockOrderHistoryResponse(long id, LocalDate orderDate, String orderType, double bidPrice, long volume, String name) {
+public record StockOrderHistoryResponse(long id, LocalDate orderDate, String orderType, double bidPrice, long quantity, String name, String code, boolean executed, LocalDate executedDate) {
 
-    public static StockOrderHistoryResponse of(StockOrder entity) {
+    public static StockOrderHistoryResponse of(StockOrder entity, StockTicker stockTicker) {
         return new StockOrderHistoryResponse(entity.getId(),
                 entity.getOrderDate(),
                 entity.getStockOrderType().getValue(),
                 entity.getBidPrice(),
-                entity.getVolume(),
-                entity.getStock().getName());
+                entity.getQuantity(),
+                stockTicker.getName(),
+                stockTicker.getCode(),
+                entity.isExecuted(),
+                entity.getExecutedDate());
     }
 
 }
