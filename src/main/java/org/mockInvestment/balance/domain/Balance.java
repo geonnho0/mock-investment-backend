@@ -12,6 +12,8 @@ import org.mockInvestment.member.domain.Member;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Balance {
 
+    public static final Double DEFAULT_BALANCE = 1000000.0;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,7 +27,7 @@ public class Balance {
 
     public Balance(Member member) {
         this.member = member;
-        balance = 1000000.0;
+        reset();
     }
 
     public void pay(Double price) {
@@ -44,7 +46,7 @@ public class Balance {
     }
 
     public void reset() {
-        balance = 1000000.0;
+        balance = DEFAULT_BALANCE;
     }
 
 }

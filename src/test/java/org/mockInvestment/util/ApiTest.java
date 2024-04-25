@@ -5,7 +5,7 @@ import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockInvestment.balance.api.BalanceApi;
-import org.mockInvestment.balance.application.BalanceService;
+import org.mockInvestment.balance.application.BalanceFindService;
 import org.mockInvestment.stockPrice.api.StockPriceApi;
 import org.mockInvestment.stockPrice.application.StockPriceCandleFindService;
 import org.mockInvestment.global.auth.AuthFilter;
@@ -34,8 +34,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @WebMvcTest({
         BalanceApi.class,
-        StockPriceApi.class,
-        StockOrderApi.class
 })
 @WithMockUser
 @ExtendWith(RestDocumentationExtension.class)
@@ -44,7 +42,7 @@ public class ApiTest {
     protected MockMvcRequestSpecification restDocs;
 
     @MockBean
-    protected BalanceService balanceService;
+    protected BalanceFindService balanceFindService;
 
     @MockBean
     protected PeriodExtractor periodExtractor;
