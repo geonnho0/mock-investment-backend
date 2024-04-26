@@ -23,4 +23,11 @@ public class StockPrice {
     @Column(name = "종가")
     private Double close;
 
+
+    public StockPrice(Double open, Double high, Double low, Double close) {
+        this.open = open;
+        this.high = high;
+        this.low = low;
+        this.close = close;
+    }
 }

@@ -30,6 +30,13 @@ public class StockPriceCandle {
     private Long volume;
 
 
+    public StockPriceCandle(StockTicker stockTicker, StockPrice price, Long volume, LocalDate date) {
+        this.stockTicker = stockTicker;
+        this.price = price;
+        this.volume = volume;
+        this.date = date;
+    }
+
     public Double getClose() {
         return price.getClose();
     }

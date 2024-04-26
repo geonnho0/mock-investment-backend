@@ -15,10 +15,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/stock-prices")
 @RequiredArgsConstructor
+@RequestMapping("/stock-prices")
 public class StockPriceApi {
-
 
     private final StockPriceCandleFindService stockPriceCandleFindService;
 
@@ -26,8 +25,10 @@ public class StockPriceApi {
 
 
     @GetMapping
-    public ResponseEntity<StockPricesResponse> findStockPricesAtDate(@RequestParam("code") List<String> stockCodes,
-                                                                     @RequestParam("date") LocalDate date) {
+    public ResponseEntity<StockPricesResponse> findStockPricesAtDate(
+            @RequestParam("code") List<String> stockCodes,
+            @RequestParam("date") LocalDate date
+    ) {
         StockPricesResponse response = stockPriceFindService.findStockPricesByCodeAtDate(stockCodes, date);
         return ResponseEntity.ok(response);
     }
@@ -44,8 +45,10 @@ public class StockPriceApi {
     }
 
     @GetMapping("/like")
-    public ResponseEntity<StockPricesResponse> findAllLikedStockPricesAtDate(@RequestParam("date") LocalDate date,
-                                                                          @Login AuthInfo authInfo) {
+    public ResponseEntity<StockPricesResponse> findAllLikedStockPricesAtDate(
+            @RequestParam("date") LocalDate date,
+            @Login AuthInfo authInfo
+    ) {
         StockPricesResponse response = stockPriceFindService.findAllLikedStockPricesAtDate(date, authInfo);
         return ResponseEntity.ok(response);
     }

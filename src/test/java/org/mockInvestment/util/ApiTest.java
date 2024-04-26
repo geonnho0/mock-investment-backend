@@ -11,11 +11,13 @@ import org.mockInvestment.member.application.MemberNicknameUpdateService;
 import org.mockInvestment.stockOrder.api.StockOrderApi;
 import org.mockInvestment.stockOrder.application.StockOrderCreateService;
 import org.mockInvestment.stockOrder.application.StockOrderDeleteService;
+import org.mockInvestment.stockPrice.api.StockPriceApi;
 import org.mockInvestment.stockPrice.application.StockPriceCandleFindService;
 import org.mockInvestment.global.auth.AuthFilter;
 import org.mockInvestment.global.auth.AuthenticationPrincipalArgumentResolver;
 import org.mockInvestment.global.auth.token.JwtTokenProvider;
 import org.mockInvestment.stockOrder.application.StockOrderFindService;
+import org.mockInvestment.stockPrice.application.StockPriceFindService;
 import org.mockInvestment.stockPrice.util.PeriodExtractor;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -39,6 +41,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
         BalanceApi.class,
         MemberApi.class,
         StockOrderApi.class,
+        StockPriceApi.class,
 })
 @WithMockUser
 @ExtendWith(RestDocumentationExtension.class)
@@ -57,6 +60,9 @@ public class ApiTest {
 
     @MockBean
     protected StockPriceCandleFindService stockPriceCandleFindService;
+
+    @MockBean
+    protected StockPriceFindService stockPriceFindService;
 
     @MockBean
     protected StockOrderFindService stockOrderFindService;

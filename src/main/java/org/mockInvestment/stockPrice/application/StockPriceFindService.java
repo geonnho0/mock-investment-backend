@@ -79,7 +79,7 @@ public class StockPriceFindService {
         double base = stockPriceCandles.get(1).getClose();
         double high = current.getHigh();
         double low = current.getLow();
-        return new RecentStockPrice(stockTicker.getName(), stockTicker.getName(), curr, base, high, low);
+        return new RecentStockPrice(stockTicker.getCode(), stockTicker.getName(), curr, base, high, low);
     }
 
 }
