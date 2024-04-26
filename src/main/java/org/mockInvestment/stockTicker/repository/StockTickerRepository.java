@@ -10,9 +10,9 @@ import java.util.Optional;
 
 public interface StockTickerRepository extends JpaRepository<StockTicker, Long> {
 
-    @Query("SELECT DISTINCT st.code, st.name FROM StockTicker st WHERE st.name LIKE :keyword% OR st.code LIKE :keyword% " +
+    @Query("SELECT st FROM StockTicker st WHERE st.name LIKE :keyword% OR st.code LIKE :keyword% " +
             "ORDER BY CASE WHEN st.name = :keyword OR st.code = :keyword THEN 0 ELSE 1 END")
-    List<String[]> findAllByKeyword(String keyword);
+    List<StockTicker> findAllByKeyword(String keyword);
 
     Optional<StockTicker> findByCode(String code);
 }

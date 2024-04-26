@@ -48,11 +48,11 @@ class StockPriceFindTest extends MockTest {
 
     private StockTicker stockTicker;
 
+
     @BeforeEach
     void setUp() {
         stockTicker = new StockTicker("CODE", "NAME");
     }
-
 
     @Test
     @DisplayName("특정 주식(들)의 특정 날짜의 시세를 가져온다.")

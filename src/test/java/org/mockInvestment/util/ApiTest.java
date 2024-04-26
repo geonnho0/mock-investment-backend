@@ -19,6 +19,9 @@ import org.mockInvestment.global.auth.token.JwtTokenProvider;
 import org.mockInvestment.stockOrder.application.StockOrderFindService;
 import org.mockInvestment.stockPrice.application.StockPriceFindService;
 import org.mockInvestment.stockPrice.util.PeriodExtractor;
+import org.mockInvestment.stockTicker.api.StockTickerApi;
+import org.mockInvestment.stockTicker.application.StockTickerFindService;
+import org.mockInvestment.stockTicker.application.StockTickerLikeToggleService;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.restdocs.RestDocumentationContextProvider;
@@ -42,6 +45,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
         MemberApi.class,
         StockOrderApi.class,
         StockPriceApi.class,
+        StockTickerApi.class
 })
 @WithMockUser
 @ExtendWith(RestDocumentationExtension.class)
@@ -72,6 +76,12 @@ public class ApiTest {
 
     @MockBean
     protected StockOrderDeleteService stockOrderDeleteService;
+
+    @MockBean
+    protected StockTickerFindService stockTickerFindService;
+
+    @MockBean
+    protected StockTickerLikeToggleService stockTickerLikeToggleService;
 
     @MockBean
     protected AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver;

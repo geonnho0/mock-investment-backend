@@ -35,7 +35,7 @@ public class StockTickerLikeToggleService {
         Member member = memberRepository.findById(authInfo.getId())
                 .orElseThrow(MemberNotFoundException::new);
 
-        Optional<StockTickerLike> stockTickerLike = stockTickerLikeRepository.findByStockTickerAndMember(stockTicker.getCode(), member);
+        Optional<StockTickerLike> stockTickerLike = stockTickerLikeRepository.findByStockTickerAndMember(stockTicker, member);
 
         if (stockTickerLike.isEmpty()) {
             addLike(stockTicker, member);
