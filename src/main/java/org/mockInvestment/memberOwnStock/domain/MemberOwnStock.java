@@ -7,12 +7,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.mockInvestment.member.domain.Member;
 import org.mockInvestment.stockOrder.domain.StockOrder;
+import org.mockInvestment.stockTicker.domain.StockTicker;
 
 import java.time.LocalDate;
 
 @Getter
 @Entity
-@Table(name = "kor_member_own_stock")
+@Table(name = "member_own_stocks")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberOwnStock {
 
@@ -23,14 +24,15 @@ public class MemberOwnStock {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
-    private String stockTicker;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private StockTicker stockTicker;
 
     private Long quantity;
 
     private Double averageCost;
 
     @Builder
-    public MemberOwnStock(Long id, Member member, String stockTicker) {
+    public MemberOwnStock(Long id, Member member, StockTicker stockTicker) {
         this.id = id;
         this.member = member;
         this.stockTicker = stockTicker;

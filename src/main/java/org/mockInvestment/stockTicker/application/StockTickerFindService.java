@@ -8,6 +8,7 @@ import org.mockInvestment.member.repository.MemberRepository;
 import org.mockInvestment.stockTicker.dto.StockTickerResponse;
 import org.mockInvestment.stockTicker.domain.StockTicker;
 import org.mockInvestment.stockTicker.dto.StockTickersResponse;
+import org.mockInvestment.stockTicker.exception.StockTickerNotFoundException;
 import org.mockInvestment.stockTicker.repository.StockTickerLikeRepository;
 import org.mockInvestment.stockTicker.repository.StockTickerRepository;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,8 @@ public class StockTickerFindService {
 
 
     public StockTickerResponse findStockTickerByCode(String stockCode, AuthInfo authInfo) {
-        StockTicker stockTicker = stockTickerRepository.findTop1ByCodeOrderByDate(stockCode).get(0);
+        StockTicker stockTicker = stockTickerRepository.findByCode(stockCode)
+                .orElseThrow(StockTickerNotFoundException::new);
         Member member = memberRepository.findById(authInfo.getId())
                 .orElseThrow(MemberNotFoundException::new);
         boolean isLiked = stockTickerLikeRepository.existsByStockTickerAndMember(stockTicker.getCode(), member);

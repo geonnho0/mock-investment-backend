@@ -11,6 +11,7 @@ import org.mockInvestment.member.domain.Member;
 import org.mockInvestment.member.exception.MemberNotFoundException;
 import org.mockInvestment.member.repository.MemberRepository;
 import org.mockInvestment.stockTicker.domain.StockTicker;
+import org.mockInvestment.stockTicker.exception.StockTickerNotFoundException;
 import org.mockInvestment.stockTicker.repository.StockTickerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +31,8 @@ public class CommentCreateService {
     public void addComment(AuthInfo authInfo, String stockCode, NewCommentRequest request) {
         Member member = memberRepository.findById(authInfo.getId())
                 .orElseThrow(MemberNotFoundException::new);
-        StockTicker stockTicker = stockTickerRepository.findTop1ByCodeOrderByDate(stockCode).get(0);
+        StockTicker stockTicker = stockTickerRepository.findByCode(stockCode)
+                .orElseThrow(StockTickerNotFoundException::new);
         Comment comment = Comment.builder()
                 .member(member)
                 .stockTicker(stockTicker.getCode())

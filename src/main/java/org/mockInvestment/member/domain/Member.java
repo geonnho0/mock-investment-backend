@@ -11,6 +11,7 @@ import org.mockInvestment.stockTicker.domain.StockTickerLike;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -21,7 +22,6 @@ public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
 
     private String email;
 
@@ -78,7 +78,7 @@ public class Member {
     }
 
     public boolean equals(Member member) {
-        return this.id == member.getId();
+        return Objects.equals(this.id, member.getId());
     }
 
     public void resetSimulation() {

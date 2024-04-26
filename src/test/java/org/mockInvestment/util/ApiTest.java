@@ -8,6 +8,9 @@ import org.mockInvestment.balance.api.BalanceApi;
 import org.mockInvestment.balance.application.BalanceFindService;
 import org.mockInvestment.member.api.MemberApi;
 import org.mockInvestment.member.application.MemberNicknameUpdateService;
+import org.mockInvestment.stockOrder.api.StockOrderApi;
+import org.mockInvestment.stockOrder.application.StockOrderCreateService;
+import org.mockInvestment.stockOrder.application.StockOrderDeleteService;
 import org.mockInvestment.stockPrice.application.StockPriceCandleFindService;
 import org.mockInvestment.global.auth.AuthFilter;
 import org.mockInvestment.global.auth.AuthenticationPrincipalArgumentResolver;
@@ -34,7 +37,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @WebMvcTest({
         BalanceApi.class,
-        MemberApi.class
+        MemberApi.class,
+        StockOrderApi.class,
 })
 @WithMockUser
 @ExtendWith(RestDocumentationExtension.class)
@@ -56,6 +60,12 @@ public class ApiTest {
 
     @MockBean
     protected StockOrderFindService stockOrderFindService;
+
+    @MockBean
+    protected StockOrderCreateService stockOrderCreateService;
+
+    @MockBean
+    protected StockOrderDeleteService stockOrderDeleteService;
 
     @MockBean
     protected AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver;

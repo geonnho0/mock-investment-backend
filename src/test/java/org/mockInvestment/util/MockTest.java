@@ -19,7 +19,7 @@ public class MockTest {
 
 
     @BeforeEach
-    void setUp() {
+    void testDataSetUp() {
         testMember = Member.builder()
                 .id(1L)
                 .role("USER")

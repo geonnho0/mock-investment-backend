@@ -3,6 +3,9 @@ package org.mockInvestment.stockValue.application;
 import lombok.RequiredArgsConstructor;
 import org.mockInvestment.stockPrice.application.StockPriceFindService;
 import org.mockInvestment.stockPrice.dto.StockPriceResponse;
+import org.mockInvestment.stockTicker.domain.StockTicker;
+import org.mockInvestment.stockTicker.exception.StockTickerNotFoundException;
+import org.mockInvestment.stockTicker.repository.StockTickerRepository;
 import org.mockInvestment.stockValue.domain.StockValue;
 import org.mockInvestment.stockValue.dto.StockValueRankingResponse;
 import org.mockInvestment.stockValue.dto.StockValueResponse;
@@ -30,6 +33,8 @@ public class StockValueFindService {
 
     private final StockValueRepository stockValueRepository;
 
+    private final StockTickerRepository stockTickerRepository;
+
 
     public StockValuesResponse findStockValuesByCode(String stockCode, String date) {
         LocalDate newDate = LocalDate.parse(date);
@@ -38,21 +43,21 @@ public class StockValueFindService {
 
         ArrayList<StockValueResponse> responses = new ArrayList<>();
 
-        Map<String, Map<LocalDate, Map<String, Double>>> map = new HashMap<>();
-        for (StockValue value : values) {
-            Map<LocalDate, Map<String, Double>> dateMappedData = map.getOrDefault(value.getCode(), new HashMap<>());
-            Map<String, Double> data = dateMappedData.getOrDefault(value.getDate(), new HashMap<>());
-            data.put(value.getIndicator(), value.getValue());
-            dateMappedData.put(value.getDate(), data);
-            map.put(value.getCode(), dateMappedData);
-        }
-
-        for (String code: map.keySet()) {
-            Map<LocalDate, Map<String, Double>> dateMappedData = map.get(code);
-            for (LocalDate pivotDate: dateMappedData.keySet()) {
-                responses.add(StockValueResponse.of(code, pivotDate, dateMappedData.get(pivotDate)));
-            }
-        }
+//        Map<String, Map<LocalDate, Map<String, Double>>> map = new HashMap<>();
+//        for (StockValue value : values) {
+//            Map<LocalDate, Map<String, Double>> dateMappedData = map.getOrDefault(value.getCode(), new HashMap<>());
+//            Map<String, Double> data = dateMappedData.getOrDefault(value.getDate(), new HashMap<>());
+//            data.put(value.getIndicator(), value.getValue());
+//            dateMappedData.put(value.getDate(), data);
+//            map.put(value.getCode(), dateMappedData);
+//        }
+//
+//        for (String code: map.keySet()) {
+//            Map<LocalDate, Map<String, Double>> dateMappedData = map.get(code);
+//            for (LocalDate pivotDate: dateMappedData.keySet()) {
+//                responses.add(StockValueResponse.of(code, pivotDate, dateMappedData.get(pivotDate)));
+//            }
+//        }
 
         return new StockValuesResponse(responses);
     }
@@ -61,7 +66,9 @@ public class StockValueFindService {
         List<StockValueResponse> values = findTop20StockValues(date).values();
         List<StockValueRankingResponse> responses = new ArrayList<>();
         for (StockValueResponse value : values) {
-            StockPriceResponse price = stockPriceFindService.findStockPriceAtDate(value.code(), value.date());
+            StockTicker stockTicker = stockTickerRepository.findByCode(value.code())
+                    .orElseThrow(StockTickerNotFoundException::new);
+            StockPriceResponse price = stockPriceFindService.findStockPriceAtDate(stockTicker, value.date());
             responses.add(StockValueRankingResponse.of(price, value));
         }
         return new StockValuesRankingResponse(responses);

@@ -37,8 +37,7 @@ public class MemberOwnStockFindService {
         List<MemberOwnStockResponse> responses = new ArrayList<>();
 
         for (MemberOwnStock ownStock : ownStocks) {
-            StockTicker stockTicker = stockTickerRepository.findTop1ByCodeOrderByDate(ownStock.getStockTicker()).get(0);
-            responses.add(MemberOwnStockResponse.of(ownStock, stockTicker));
+            responses.add(MemberOwnStockResponse.of(ownStock, ownStock.getStockTicker()));
         }
 
         return new MemberOwnStocksResponse(responses);

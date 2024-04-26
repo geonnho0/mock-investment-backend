@@ -28,23 +28,25 @@ public class StockPriceApi {
     @GetMapping
     public ResponseEntity<StockPricesResponse> findStockPricesAtDate(@RequestParam("code") List<String> stockCodes,
                                                                      @RequestParam("date") LocalDate date) {
-        StockPricesResponse response = stockPriceFindService.findStockPricesAtDate(stockCodes, date);
+        StockPricesResponse response = stockPriceFindService.findStockPricesByCodeAtDate(stockCodes, date);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{code}")
-    public ResponseEntity<StockPriceCandlesResponse> findStockPriceCandles(@PathVariable("code") String stockCode,
-                                                                           @RequestParam("end") LocalDate end,
-                                                                           @RequestParam("period") String period) {
+    public ResponseEntity<StockPriceCandlesResponse> findStockPriceCandlesBetweenDate(
+            @PathVariable("code") String stockCode,
+            @RequestParam("end") LocalDate end,
+            @RequestParam("period") String period
+    ) {
         PeriodExtractor periodExtractor = new PeriodExtractor(end, period);
         StockPriceCandlesResponse response = stockPriceCandleFindService.findStockPriceCandles(stockCode, periodExtractor);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/like")
-    public ResponseEntity<StockPricesResponse> findLikedStockPricesAtDate(@RequestParam("date") LocalDate date,
+    public ResponseEntity<StockPricesResponse> findAllLikedStockPricesAtDate(@RequestParam("date") LocalDate date,
                                                                           @Login AuthInfo authInfo) {
-        StockPricesResponse response = stockPriceFindService.findLikedStockPricesAtDate(date, authInfo);
+        StockPricesResponse response = stockPriceFindService.findAllLikedStockPricesAtDate(date, authInfo);
         return ResponseEntity.ok(response);
     }
 

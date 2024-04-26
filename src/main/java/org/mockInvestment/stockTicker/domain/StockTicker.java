@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 @Entity
 @Getter
-@Table(name = "kor_ticker")
+@Table(name = "stock_tickers")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StockTicker {
 
@@ -17,22 +17,17 @@ public class StockTicker {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "종목코드")
     private String code;
 
-    @Column(name = "종목명")
     private String name;
 
-    @Column(name = "시장구분")
-    private String market;
+    @Enumerated(EnumType.STRING)
+    private StockMarket stockMarket;
 
-    @Column(name = "기준일")
-    private LocalDate date;
 
-    @Column(name = "시가총액")
-    private Double marketCapitalization;
-
-    @Column(name = "주당배당금")
-    private Double dividend;
+    public StockTicker(String code, String name) {
+        this.code = code;
+        this.name = name;
+    }
 
 }

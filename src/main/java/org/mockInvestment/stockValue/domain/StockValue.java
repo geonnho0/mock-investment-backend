@@ -4,12 +4,13 @@ import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.mockInvestment.stockTicker.domain.StockTicker;
 
 import java.time.LocalDate;
 
 @Entity
 @Getter
-@Table(name = "kor_value")
+@Table(name = "stock_values")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StockValue {
 
@@ -17,16 +18,17 @@ public class StockValue {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "종목코드")
-    private String code;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private StockTicker stockTicker;
 
-    @Column(name = "기준일")
     private LocalDate date;
 
-    @Column(name = "지표")
-    private String indicator;
+    private Double per;
 
-    @Column(name = "값")
-    private Double value;
+    private Double pbr;
+
+    private Double pcr;
+
+    private Double psr;
 
 }
