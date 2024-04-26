@@ -6,12 +6,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockInvestment.balance.api.BalanceApi;
 import org.mockInvestment.balance.application.BalanceFindService;
-import org.mockInvestment.stockPrice.api.StockPriceApi;
+import org.mockInvestment.member.api.MemberApi;
+import org.mockInvestment.member.application.MemberNicknameUpdateService;
 import org.mockInvestment.stockPrice.application.StockPriceCandleFindService;
 import org.mockInvestment.global.auth.AuthFilter;
 import org.mockInvestment.global.auth.AuthenticationPrincipalArgumentResolver;
 import org.mockInvestment.global.auth.token.JwtTokenProvider;
-import org.mockInvestment.stockOrder.api.StockOrderApi;
 import org.mockInvestment.stockOrder.application.StockOrderFindService;
 import org.mockInvestment.stockPrice.util.PeriodExtractor;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -34,6 +34,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @WebMvcTest({
         BalanceApi.class,
+        MemberApi.class
 })
 @WithMockUser
 @ExtendWith(RestDocumentationExtension.class)
@@ -43,6 +44,9 @@ public class ApiTest {
 
     @MockBean
     protected BalanceFindService balanceFindService;
+
+    @MockBean
+    protected MemberNicknameUpdateService memberNicknameUpdateService;
 
     @MockBean
     protected PeriodExtractor periodExtractor;

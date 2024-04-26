@@ -33,7 +33,7 @@ public class SimulationStartService {
         Member member = memberRepository.findById(authInfo.getId())
                 .orElseThrow(MemberNotFoundException::new);
 
-        member.resetBalance();
+        member.resetSimulation();
 
         List<StockOrder> stockOrders = member.getStockOrders();
         deleteStockOrders(stockOrders);

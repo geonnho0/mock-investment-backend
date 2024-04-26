@@ -14,8 +14,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -40,17 +38,15 @@ public class AuthService extends DefaultOAuth2UserService {
     }
 
     private Member getOrCreateMember(OAuth2UserAttributes oAuth2UserAttributes) {
-        Member member = memberRepository.findByUsername(oAuth2UserAttributes.getUsername())
+        return memberRepository.findByUsername(oAuth2UserAttributes.getUsername())
                 .orElseGet(() -> {
                     Member newMember = Member.builder()
                             .role("ROLE_USER")
+                            .email(oAuth2UserAttributes.getEmail())
                             .username(oAuth2UserAttributes.getUsername())
                             .build();
                     return memberRepository.save(newMember);
                 });
-        member.updateEMail(oAuth2UserAttributes.getEmail());
-        member.updateName(oAuth2UserAttributes.getName());
-        return member;
     }
 
 }

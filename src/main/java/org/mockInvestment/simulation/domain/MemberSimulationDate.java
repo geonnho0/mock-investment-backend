@@ -14,6 +14,8 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberSimulationDate {
 
+    public static final LocalDate DEFAULT_START_DATE = LocalDate.of(2022, 2, 16);
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,13 +26,13 @@ public class MemberSimulationDate {
     private LocalDate simulationDate;
 
 
-    public MemberSimulationDate(Member member, LocalDate simulationDate) {
+    public MemberSimulationDate(Member member) {
         this.member = member;
-        this.simulationDate = simulationDate;
+        this.simulationDate = DEFAULT_START_DATE;
     }
 
     public void reset() {
-        simulationDate = LocalDate.of(2022, 2, 16);
+        simulationDate = DEFAULT_START_DATE;
     }
 
     public void updateDate(LocalDate newDate) {

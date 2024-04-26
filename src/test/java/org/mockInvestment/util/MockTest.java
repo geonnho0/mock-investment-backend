@@ -23,7 +23,6 @@ public class MockTest {
         testMember = Member.builder()
                 .id(1L)
                 .role("USER")
-                .name("NAME")
                 .username("USERNAME")
                 .email("EMAIL")
                 .build();

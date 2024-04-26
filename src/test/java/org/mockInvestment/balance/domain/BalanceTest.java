@@ -20,11 +20,10 @@ class BalanceTest {
         member = Member.builder()
                 .id(1L)
                 .role("USER")
-                .name("NAME")
                 .username("USERNAME")
                 .email("EMAIL")
                 .build();
-        balance = new Balance(member);
+        balance = member.getBalance();
     }
 
     @Test
