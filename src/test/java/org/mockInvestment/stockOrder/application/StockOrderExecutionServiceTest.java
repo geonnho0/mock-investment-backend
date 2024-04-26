@@ -102,7 +102,8 @@ class StockOrderExecutionServiceTest extends MockTest {
         assertAll(
                 () -> assertThat(memberOwnStock.getQuantity()).isEqualTo(1),
                 () -> assertThat(memberOwnStock.getAverageCost()).isEqualTo(buyStockOrder.getBidPrice()),
-                () -> assertThat(testMember.getBalance().getBalance()).isEqualTo(Balance.DEFAULT_BALANCE - buyStockOrder.totalBidPrice())
+                () -> assertThat(testMember.getBalance().getBalance()).isEqualTo(Balance.DEFAULT_BALANCE - buyStockOrder.totalBidPrice()),
+                () -> assertThat(testMember.getOwnStocks().size()).isEqualTo(1)
         );
     }
 
@@ -124,7 +125,8 @@ class StockOrderExecutionServiceTest extends MockTest {
 
         assertAll(
                 () -> verify(memberOwnStockRepository).delete(memberOwnStock),
-                () -> assertThat(testMember.getBalance().getBalance()).isEqualTo(Balance.DEFAULT_BALANCE)
+                () -> assertThat(testMember.getBalance().getBalance()).isEqualTo(Balance.DEFAULT_BALANCE),
+                () -> assertThat(testMember.getOwnStocks().isEmpty()).isEqualTo(true)
         );
     }
 

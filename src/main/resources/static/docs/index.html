@@ -479,7 +479,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h5 id="_성공_http_request"><a class="link" href="#_성공_http_request">HTTP request</a></h5>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /stock-prices?code=CODE HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /stock-prices?date=2022-02-16&amp;code=CODE HTTP/1.1
 Content-Type: application/json
 Content-Type: application/json
 Host: localhost:8080</code></pre>
@@ -539,7 +539,7 @@ Content-Length: 469
 <h6 id="_유효하지_않은_코드_http_request"><a class="link" href="#_유효하지_않은_코드_http_request">HTTP request</a></h6>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /stock-prices?code=INVALID-CODE HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /stock-prices?date=2022-02-16&amp;code=INVALID-CODE HTTP/1.1
 Content-Type: application/json
 Content-Type: application/json
 Host: localhost:8080</code></pre>
@@ -560,7 +560,7 @@ Expires: 0
 Content-Length: 61
 
 {
-  "message" : "주식 정보를 찾을 수 없습니다."
+  "message" : "주식 티커를 찾을 수 없습니다."
 }</code></pre>
 </div>
 </div>
@@ -708,7 +708,7 @@ Content-Length: 455
 <h6 id="_성공_4_http_request"><a class="link" href="#_성공_4_http_request">HTTP request</a></h6>
 <div class="listingblock">
 <div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /stock-prices/CODE/candles/1y HTTP/1.1
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /stock-prices/CODE?period=1y&amp;end=2024-04-25 HTTP/1.1
 Content-Type: application/json
 Content-Type: application/json
 Host: localhost:8080</code></pre>
@@ -731,28 +731,28 @@ Content-Length: 455
 {
   "code" : "CODE",
   "candles" : [ {
-    "dt" : "2024-03-26",
+    "dt" : "2024-04-27",
     "o" : 1.0,
     "c" : 1.0,
     "l" : 1.0,
     "h" : 1.0,
     "v" : 1
   }, {
-    "dt" : "2024-03-26",
+    "dt" : "2024-04-27",
     "o" : 1.0,
     "c" : 1.0,
     "l" : 1.0,
     "h" : 1.0,
     "v" : 1
   }, {
-    "dt" : "2024-03-26",
+    "dt" : "2024-04-27",
     "o" : 1.0,
     "c" : 1.0,
     "l" : 1.0,
     "h" : 1.0,
     "v" : 1
   }, {
-    "dt" : "2024-03-26",
+    "dt" : "2024-04-27",
     "o" : 1.0,
     "c" : 1.0,
     "l" : 1.0,
@@ -849,14 +849,15 @@ Content-Length: 455
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /stocks/CODE/order HTTP/1.1
 Content-Type: application/json
 Content-Type: application/json
-Content-Length: 61
+Content-Length: 96
 Host: localhost:8080
 Cookie: Authorization=Access Token
 
 {
   "bidPrice" : 1.0,
-  "volume" : 1,
-  "orderType" : "BUY"
+  "quantity" : 1,
+  "orderType" : "BUY",
+  "orderDate" : [ 2024, 4, 27 ]
 }</code></pre>
 </div>
 </div>
@@ -887,14 +888,15 @@ Expires: 0</code></pre>
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /stocks/CODE/order HTTP/1.1
 Content-Type: application/json
 Content-Type: application/json
-Content-Length: 62
+Content-Length: 97
 Host: localhost:8080
 Cookie: Authorization=Access Token
 
 {
   "bidPrice" : 1.0,
-  "volume" : 1,
-  "orderType" : "SELL"
+  "quantity" : 1,
+  "orderType" : "SELL",
+  "orderDate" : [ 2024, 4, 27 ]
 }</code></pre>
 </div>
 </div>
@@ -925,14 +927,15 @@ Expires: 0</code></pre>
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /stocks/CODE/order HTTP/1.1
 Content-Type: application/json
 Content-Type: application/json
-Content-Length: 61
+Content-Length: 96
 Host: localhost:8080
 Cookie: Authorization=Access Token
 
 {
   "bidPrice" : 1.0,
-  "volume" : 1,
-  "orderType" : "XXX"
+  "quantity" : 1,
+  "orderType" : "XXX",
+  "orderDate" : [ 2024, 4, 27 ]
 }</code></pre>
 </div>
 </div>
@@ -988,44 +991,59 @@ Vary: Access-Control-Request-Headers
 Content-Type: application/json
 Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Expires: 0
-Content-Length: 742
+Content-Length: 1177
 
 {
   "histories" : [ {
     "id" : 0,
-    "orderDate" : "2024-03-26",
+    "orderDate" : "2024-04-27",
     "orderType" : "BUY",
     "bidPrice" : 1.0,
-    "volume" : 1,
-    "name" : "STOCK NAME"
+    "quantity" : 1,
+    "name" : "STOCK NAME",
+    "code" : "STOCK_CODE",
+    "executed" : true,
+    "executedDate" : "2024-04-27"
   }, {
     "id" : 1,
-    "orderDate" : "2024-03-26",
+    "orderDate" : "2024-04-27",
     "orderType" : "BUY",
     "bidPrice" : 2.0,
-    "volume" : 2,
-    "name" : "STOCK NAME"
+    "quantity" : 2,
+    "name" : "STOCK NAME",
+    "code" : "STOCK_CODE",
+    "executed" : true,
+    "executedDate" : "2024-04-27"
   }, {
     "id" : 2,
-    "orderDate" : "2024-03-26",
+    "orderDate" : "2024-04-27",
     "orderType" : "BUY",
     "bidPrice" : 3.0,
-    "volume" : 3,
-    "name" : "STOCK NAME"
+    "quantity" : 3,
+    "name" : "STOCK NAME",
+    "code" : "STOCK_CODE",
+    "executed" : true,
+    "executedDate" : "2024-04-27"
   }, {
     "id" : 3,
-    "orderDate" : "2024-03-26",
+    "orderDate" : "2024-04-27",
     "orderType" : "BUY",
     "bidPrice" : 4.0,
-    "volume" : 4,
-    "name" : "STOCK NAME"
+    "quantity" : 4,
+    "name" : "STOCK NAME",
+    "code" : "STOCK_CODE",
+    "executed" : true,
+    "executedDate" : "2024-04-27"
   }, {
     "id" : 4,
-    "orderDate" : "2024-03-26",
+    "orderDate" : "2024-04-27",
     "orderType" : "BUY",
     "bidPrice" : 5.0,
-    "volume" : 5,
-    "name" : "STOCK NAME"
+    "quantity" : 5,
+    "name" : "STOCK NAME",
+    "code" : "STOCK_CODE",
+    "executed" : true,
+    "executedDate" : "2024-04-27"
   } ]
 }</code></pre>
 </div>
@@ -1060,44 +1078,59 @@ Vary: Access-Control-Request-Headers
 Content-Type: application/json
 Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Expires: 0
-Content-Length: 742
+Content-Length: 1177
 
 {
   "histories" : [ {
     "id" : 0,
-    "orderDate" : "2024-03-26",
+    "orderDate" : "2024-04-27",
     "orderType" : "BUY",
     "bidPrice" : 1.0,
-    "volume" : 1,
-    "name" : "STOCK NAME"
+    "quantity" : 1,
+    "name" : "STOCK NAME",
+    "code" : "STOCK_CODE",
+    "executed" : true,
+    "executedDate" : "2024-04-27"
   }, {
     "id" : 1,
-    "orderDate" : "2024-03-26",
+    "orderDate" : "2024-04-27",
     "orderType" : "BUY",
     "bidPrice" : 2.0,
-    "volume" : 2,
-    "name" : "STOCK NAME"
+    "quantity" : 2,
+    "name" : "STOCK NAME",
+    "code" : "STOCK_CODE",
+    "executed" : true,
+    "executedDate" : "2024-04-27"
   }, {
     "id" : 2,
-    "orderDate" : "2024-03-26",
+    "orderDate" : "2024-04-27",
     "orderType" : "BUY",
     "bidPrice" : 3.0,
-    "volume" : 3,
-    "name" : "STOCK NAME"
+    "quantity" : 3,
+    "name" : "STOCK NAME",
+    "code" : "STOCK_CODE",
+    "executed" : true,
+    "executedDate" : "2024-04-27"
   }, {
     "id" : 3,
-    "orderDate" : "2024-03-26",
+    "orderDate" : "2024-04-27",
     "orderType" : "BUY",
     "bidPrice" : 4.0,
-    "volume" : 4,
-    "name" : "STOCK NAME"
+    "quantity" : 4,
+    "name" : "STOCK NAME",
+    "code" : "STOCK_CODE",
+    "executed" : true,
+    "executedDate" : "2024-04-27"
   }, {
     "id" : 4,
-    "orderDate" : "2024-03-26",
+    "orderDate" : "2024-04-27",
     "orderType" : "BUY",
     "bidPrice" : 5.0,
-    "volume" : 5,
-    "name" : "STOCK NAME"
+    "quantity" : 5,
+    "name" : "STOCK NAME",
+    "code" : "STOCK_CODE",
+    "executed" : true,
+    "executedDate" : "2024-04-27"
   } ]
 }</code></pre>
 </div>

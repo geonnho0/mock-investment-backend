@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockInvestment.auth.dto.AuthInfo;
 import org.mockInvestment.balance.domain.Balance;
 import org.mockInvestment.member.domain.Member;
+import org.mockInvestment.stockTicker.domain.StockTicker;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 
@@ -17,6 +18,8 @@ public class MockTest {
 
     protected AuthInfo testAuthInfo;
 
+    protected StockTicker testStockTicker;
+
 
     @BeforeEach
     void testDataSetUp() {
@@ -28,6 +31,7 @@ public class MockTest {
                 .build();
         testBalance = new Balance(testMember);
         testAuthInfo = new AuthInfo(testMember);
+        testStockTicker = new StockTicker("CODE", "NAME");
     }
 
 }

@@ -42,8 +42,6 @@ class StockOrderFindServiceTest extends MockTest {
                 .thenReturn(Optional.ofNullable(testMember));
         when(stockOrderRepository.findAllByMember(any(Member.class)))
                 .thenReturn(createStockOrders(10));
-        when(stockTickerRepository.findByCode(anyString()))
-                .thenReturn(Optional.of(new StockTicker("code", "name")));
 
         StockOrderHistoriesResponse response = stockOrderFindService.findAllStockOrderHistories(1L);
 
@@ -70,8 +68,6 @@ class StockOrderFindServiceTest extends MockTest {
                 .thenReturn(Optional.ofNullable(testMember));
         when(stockOrderRepository.findAllByMember(any(Member.class)))
                 .thenReturn(createStockOrders(10));
-        when(stockTickerRepository.findByCode(anyString()))
-                .thenReturn(Optional.of(new StockTicker("code", "name")));
 
         StockOrderHistoriesResponse response = stockOrderFindService.findMyStockOrderHistoriesByCode(testAuthInfo, "");
 

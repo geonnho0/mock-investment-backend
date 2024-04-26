@@ -95,4 +95,12 @@ public class Member {
         stockTickerLike.delete();
     }
 
+    public void addOwnStock(MemberOwnStock memberOwnStock) {
+        ownStocks.add(memberOwnStock);
+    }
+
+    public void deleteOwnStock(MemberOwnStock memberOwnStock) {
+        ownStocks.remove(memberOwnStock);
+    }
+
 }

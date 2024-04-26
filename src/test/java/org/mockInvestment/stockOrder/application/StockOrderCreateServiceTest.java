@@ -8,6 +8,7 @@ import org.mockInvestment.stockOrder.dto.NewStockOrderRequest;
 import org.mockInvestment.stockOrder.repository.PendingStockOrderCacheRepository;
 import org.mockInvestment.stockOrder.repository.StockOrderRepository;
 import org.mockInvestment.stockTicker.domain.StockTicker;
+import org.mockInvestment.stockTicker.repository.StockTickerRepository;
 import org.mockInvestment.util.MockTest;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -15,8 +16,7 @@ import org.mockito.Mock;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +27,9 @@ class StockOrderCreateServiceTest extends MockTest {
 
     @Mock
     private StockOrderRepository stockOrderRepository;
+
+    @Mock
+    private StockTickerRepository stockTickerRepository;
 
     @Mock
     private PendingStockOrderCacheRepository stockOrderCacheRepository;
@@ -41,6 +44,8 @@ class StockOrderCreateServiceTest extends MockTest {
         StockOrder stockOrder = createTestStockOrder(request.bidPrice(), request.quantity());
         when(memberRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(testMember));
+        when(stockTickerRepository.findByCode(anyString()))
+                .thenReturn(Optional.ofNullable(testStockTicker));
         when(stockOrderRepository.save(any(StockOrder.class)))
                 .thenReturn(stockOrder);
 

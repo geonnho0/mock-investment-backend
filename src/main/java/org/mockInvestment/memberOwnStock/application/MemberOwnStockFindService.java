@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,17 +44,6 @@ public class MemberOwnStockFindService {
         return new MemberOwnStocksResponse(responses);
     }
 
-    private List<MemberOwnStock> findMemberOwnStocks(AuthInfo authInfo, String stockCode) {
-        Member member = memberRepository.findById(authInfo.getId())
-                .orElseThrow(MemberNotFoundException::new);
-        return member.getOwnStocks().stream()
-                .filter((ownStock -> {
-                    if (stockCode.isEmpty())
-                        return true;
-                    return stockCode.equals(ownStock.getStockTicker());
-                })).toList();
-    }
-
     public MemberOwnStockValueResponse findMyOwnStockTotalValue(AuthInfo authInfo, LocalDate date) {
         List<MemberOwnStock> ownStocks = findMemberOwnStocks(authInfo, "");
         double basePrice = 0.0;
@@ -64,6 +54,18 @@ public class MemberOwnStockFindService {
             currentPrice += recent.curr() * ownStock.getQuantity();
         }
         return new MemberOwnStockValueResponse(currentPrice, basePrice);
+    }
+
+    private List<MemberOwnStock> findMemberOwnStocks(AuthInfo authInfo, String stockCode) {
+        Member member = memberRepository.findById(authInfo.getId())
+                .orElseThrow(MemberNotFoundException::new);
+        Optional<StockTicker> stockTicker = stockTickerRepository.findByCode(stockCode);
+        return member.getOwnStocks().stream()
+                .filter((ownStock -> {
+                    if (stockTicker.isEmpty())
+                        return true;
+                    return stockTicker.get().equals(ownStock.getStockTicker());
+                })).toList();
     }
 
 }

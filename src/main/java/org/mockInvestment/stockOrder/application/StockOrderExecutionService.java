@@ -67,7 +67,7 @@ public class StockOrderExecutionService {
     private void applyPendingStockOrder(Member member, PendingStockOrder pendingStockOrder, LocalDate date) {
         member.applyPendingStockOrder(pendingStockOrder);
         MemberOwnStock memberOwnStock = applyAndGetMemberOwnStock(member, pendingStockOrder, date);
-        deleteMemberOwnStockAndPendingStockOrder(memberOwnStock, pendingStockOrder);
+        deleteMemberOwnStockAndPendingStockOrder(member, memberOwnStock, pendingStockOrder);
     }
 
     private MemberOwnStock applyAndGetMemberOwnStock(Member member, PendingStockOrder pendingStockOrder, LocalDate date) {
@@ -79,8 +79,10 @@ public class StockOrderExecutionService {
     }
 
     private MemberOwnStock findOrCreateMemberOwnStock(PendingStockOrder pendingStockOrder, Member member) {
-        return memberOwnStockRepository.findByMemberAndStockTicker(member, pendingStockOrder.code())
+        MemberOwnStock memberOwnStock = memberOwnStockRepository.findByMemberAndStockTicker(member, pendingStockOrder.code())
                 .orElseGet(() -> memberOwnStockRepository.save(createMemberOwnStock(pendingStockOrder, member)));
+        member.addOwnStock(memberOwnStock);
+        return memberOwnStock;
     }
 
     private MemberOwnStock createMemberOwnStock(PendingStockOrder stockOrder, Member member) {
@@ -92,8 +94,9 @@ public class StockOrderExecutionService {
                 .build();
     }
 
-    private void deleteMemberOwnStockAndPendingStockOrder(MemberOwnStock memberOwnStock, PendingStockOrder pendingStockOrder) {
+    private void deleteMemberOwnStockAndPendingStockOrder(Member member, MemberOwnStock memberOwnStock, PendingStockOrder pendingStockOrder) {
         if (memberOwnStock.canDelete()) {
+            member.deleteOwnStock(memberOwnStock);
             memberOwnStockRepository.delete(memberOwnStock);
         }
         pendingStockOrderCacheRepository.delete(pendingStockOrder);

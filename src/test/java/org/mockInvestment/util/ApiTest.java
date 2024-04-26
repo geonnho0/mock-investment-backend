@@ -8,6 +8,8 @@ import org.mockInvestment.balance.api.BalanceApi;
 import org.mockInvestment.balance.application.BalanceFindService;
 import org.mockInvestment.member.api.MemberApi;
 import org.mockInvestment.member.application.MemberNicknameUpdateService;
+import org.mockInvestment.memberOwnStock.api.MemberOwnStockApi;
+import org.mockInvestment.memberOwnStock.application.MemberOwnStockFindService;
 import org.mockInvestment.stockOrder.api.StockOrderApi;
 import org.mockInvestment.stockOrder.application.StockOrderCreateService;
 import org.mockInvestment.stockOrder.application.StockOrderDeleteService;
@@ -45,7 +47,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
         MemberApi.class,
         StockOrderApi.class,
         StockPriceApi.class,
-        StockTickerApi.class
+        StockTickerApi.class,
+        MemberOwnStockApi.class,
 })
 @WithMockUser
 @ExtendWith(RestDocumentationExtension.class)
@@ -82,6 +85,9 @@ public class ApiTest {
 
     @MockBean
     protected StockTickerLikeToggleService stockTickerLikeToggleService;
+
+    @MockBean
+    protected MemberOwnStockFindService memberOwnStockFindService;
 
     @MockBean
     protected AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver;
