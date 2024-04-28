@@ -54,7 +54,7 @@ class StockOrderFindServiceTest extends MockTest {
                 .thenReturn(Optional.ofNullable(testMember));
         when(stockTickerRepository.findByCode(anyString()))
                 .thenReturn(Optional.of(new StockTicker("code", "name")));
-        when(stockOrderRepository.findAllByMemberAndStockTicker(any(Member.class), anyString()))
+        when(stockOrderRepository.findAllByMemberAndStockTicker(any(Member.class), any(StockTicker.class)))
                 .thenReturn(createStockOrders(10));
 
         StockOrderHistoriesResponse response = stockOrderFindService.findMyStockOrderHistoriesByCode(testAuthInfo, "CODE");

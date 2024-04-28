@@ -11,16 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StockPrice {
 
-    @Column(name = "시가")
     private Double open;
 
-    @Column(name = "고가")
     private Double high;
 
-    @Column(name = "저가")
     private Double low;
 
-    @Column(name = "종가")
     private Double close;
 
 

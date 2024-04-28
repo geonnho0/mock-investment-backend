@@ -79,7 +79,9 @@ public class StockOrderExecutionService {
     }
 
     private MemberOwnStock findOrCreateMemberOwnStock(PendingStockOrder pendingStockOrder, Member member) {
-        MemberOwnStock memberOwnStock = memberOwnStockRepository.findByMemberAndStockTicker(member, pendingStockOrder.code())
+        StockTicker stockTicker = stockTickerRepository.findByCode(pendingStockOrder.code())
+                .orElseThrow(StockTickerNotFoundException::new);
+        MemberOwnStock memberOwnStock = memberOwnStockRepository.findByMemberAndStockTicker(member, stockTicker)
                 .orElseGet(() -> memberOwnStockRepository.save(createMemberOwnStock(pendingStockOrder, member)));
         member.addOwnStock(memberOwnStock);
         return memberOwnStock;

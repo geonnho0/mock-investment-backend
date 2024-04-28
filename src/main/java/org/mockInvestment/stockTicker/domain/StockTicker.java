@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -21,6 +20,7 @@ public class StockTicker {
 
     private String name;
 
+    @Column(name = "stock_market")
     @Enumerated(EnumType.STRING)
     private StockMarket stockMarket;
 

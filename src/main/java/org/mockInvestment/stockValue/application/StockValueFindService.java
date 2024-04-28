@@ -38,10 +38,14 @@ public class StockValueFindService {
 
     public StockValuesResponse findStockValuesByCode(String stockCode, String date) {
         LocalDate newDate = LocalDate.parse(date);
+        StockTicker stockTicker = stockTickerRepository.findByCode(stockCode)
+                .orElseThrow(StockTickerNotFoundException::new);
+        List<StockValueResponse> responses = stockValueRepository
+                .findAllByStockTickerAndDateIsLessThanEqual(stockTicker, newDate)
+                .stream()
+                .map(StockValueResponse::of)
+                .toList();
 
-        List<StockValue> values = stockValueRepository.findAllByCodeAndDateIsLessThanEqual(stockCode, newDate);
-
-        ArrayList<StockValueResponse> responses = new ArrayList<>();
 
 //        Map<String, Map<LocalDate, Map<String, Double>>> map = new HashMap<>();
 //        for (StockValue value : values) {
@@ -58,6 +62,7 @@ public class StockValueFindService {
 //                responses.add(StockValueResponse.of(code, pivotDate, dateMappedData.get(pivotDate)));
 //            }
 //        }
+
 
         return new StockValuesResponse(responses);
     }

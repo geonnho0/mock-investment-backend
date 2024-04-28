@@ -115,7 +115,7 @@ class StockOrderExecutionServiceTest extends MockTest {
                 .thenReturn(Optional.of(new StockTicker("Code", "Name")));
         when(stockPriceFindService.findRecentStockPriceAtDate(any(StockTicker.class), any(LocalDate.class)))
                 .thenReturn(new RecentStockPrice("Code", "Name", 0.9, 0.6, 1.1, 0.7));
-        when(memberOwnStockRepository.findByMemberAndStockTicker(any(Member.class), anyString()))
+        when(memberOwnStockRepository.findByMemberAndStockTicker(any(Member.class), any(StockTicker.class)))
                 .thenReturn(Optional.ofNullable(memberOwnStock));
         when(stockOrderRepository.findById(anyLong()))
                 .thenReturn(Optional.ofNullable(sellStockOrder));

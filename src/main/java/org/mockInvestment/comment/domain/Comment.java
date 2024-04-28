@@ -57,14 +57,15 @@ public class Comment {
     @ColumnDefault("false")
     private boolean blocked;
 
-    private String stockTicker;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private StockTicker stockTicker;
 
     @CreatedDate
     private LocalDateTime createdAt;
 
 
     @Builder
-    public Comment(Member member, String content, String stockTicker, Comment parent) {
+    public Comment(Member member, String content, StockTicker stockTicker, Comment parent) {
         this.member = member;
         this.content = content;
         this.stockTicker = stockTicker;

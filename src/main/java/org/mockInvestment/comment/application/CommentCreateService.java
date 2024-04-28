@@ -35,7 +35,7 @@ public class CommentCreateService {
                 .orElseThrow(StockTickerNotFoundException::new);
         Comment comment = Comment.builder()
                 .member(member)
-                .stockTicker(stockTicker.getCode())
+                .stockTicker(stockTicker)
                 .content(request.content())
                 .build();
 

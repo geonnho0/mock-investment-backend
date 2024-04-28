@@ -45,7 +45,7 @@ public class StockOrderFindService {
                 .orElseThrow(MemberNotFoundException::new);
         StockTicker stockTicker = stockTickerRepository.findByCode(stockCode)
                 .orElseThrow(StockTickerNotFoundException::new);
-        List<StockOrder> stockOrders = stockOrderRepository.findAllByMemberAndStockTicker(member, stockTicker.getCode());
+        List<StockOrder> stockOrders = stockOrderRepository.findAllByMemberAndStockTicker(member, stockTicker);
 
         return createStockOrderHistoriesResponse(stockOrders);
     }

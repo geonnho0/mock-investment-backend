@@ -76,9 +76,7 @@ class StockTickerFindServiceTest extends MockTest {
 
         StockTickersResponse response = stockTickerFindService.findStockTickersByKeyword("keyword", testAuthInfo);
 
-        assertAll(
-                () -> assertThat(response.stockTickers().size()).isEqualTo(2)
-        );
+        assertThat(response.stockTickers().size()).isEqualTo(2);
     }
 
     @Test

@@ -39,7 +39,7 @@ public class CommentFindService {
                 .orElseThrow(StockTickerNotFoundException::new);
         Member member = memberRepository.findById(authInfo.getId())
                 .orElseThrow(MemberNotFoundException::new);
-        List<CommentResponse> comments = commentRepository.findAllByStockTicker(stockTicker.getCode()).stream()
+        List<CommentResponse> comments = commentRepository.findAllByStockTicker(stockTicker).stream()
                 .map(comment -> convertToCommentResponse(comment, member))
                 .filter(response -> !Objects.isNull(response))
                 .toList();
