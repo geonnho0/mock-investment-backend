@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockInvestment.balance.api.BalanceApi;
 import org.mockInvestment.balance.application.BalanceFindService;
+import org.mockInvestment.comment.api.CommentApi;
+import org.mockInvestment.comment.application.*;
 import org.mockInvestment.member.api.MemberApi;
 import org.mockInvestment.member.application.MemberNicknameUpdateService;
 import org.mockInvestment.memberOwnStock.api.MemberOwnStockApi;
@@ -49,6 +51,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
         StockPriceApi.class,
         StockTickerApi.class,
         MemberOwnStockApi.class,
+        CommentApi.class,
 })
 @WithMockUser
 @ExtendWith(RestDocumentationExtension.class)
@@ -88,6 +91,24 @@ public class ApiTest {
 
     @MockBean
     protected MemberOwnStockFindService memberOwnStockFindService;
+
+    @MockBean
+    protected CommentFindService commentFindService;
+
+    @MockBean
+    protected CommentCreateService commentCreateService;
+
+    @MockBean
+    protected CommentReportCreateService commentReportCreateService;
+
+    @MockBean
+    protected CommentUpdateService commentUpdateService;
+
+    @MockBean
+    protected CommentDeleteService commentDeleteService;
+
+    @MockBean
+    protected CommentLikeToggleService commentLikeToggleService;
 
     @MockBean
     protected AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver;

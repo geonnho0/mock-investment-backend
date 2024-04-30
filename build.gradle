@@ -93,7 +93,7 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             element = 'CLASS'
-            enabled = false
+            enabled = true
 
             limit {
                 counter = 'BRANCH'
@@ -101,7 +101,7 @@ jacocoTestCoverageVerification {
                 minimum = 0.75
             }
 
-            excludes = ['*.*Repository', '*.dto.*']
+            excludes = ['*.*Repository', '*.dto.*', '*.global.*', '*.auth.*']
         }
     }
 }

@@ -34,7 +34,7 @@ public class CommentFindService {
     private final MemberRepository memberRepository;
 
 
-    public CommentsResponse findCommentsByCode(AuthInfo authInfo, String stockCode) {
+    public CommentsResponse findAllCommentsByCode(AuthInfo authInfo, String stockCode) {
         StockTicker stockTicker = stockTickerRepository.findByCode(stockCode)
                 .orElseThrow(StockTickerNotFoundException::new);
         Member member = memberRepository.findById(authInfo.getId())
@@ -55,7 +55,7 @@ public class CommentFindService {
     }
 
     private List<ReplyResponse> convertToReplyResponses(Comment parent, Member member) {
-        return parent.getChildren().stream()
+        return parent.getReplies().stream()
                 .map(reply -> {
                     boolean liked = commentLikeRepository.existsByCommentAndMember(reply, member);
                     return ReplyResponse.of(reply, liked);

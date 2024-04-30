@@ -37,7 +37,7 @@ public class Comment {
     private Comment parent;
 
     @OneToMany(mappedBy = "parent")
-    private List<Comment> children = new ArrayList<>();
+    private List<Comment> replies = new ArrayList<>();
 
     @OneToMany(mappedBy = "comment")
     private List<CommentLike> commentLikes = new ArrayList<>();
@@ -65,7 +65,8 @@ public class Comment {
 
 
     @Builder
-    public Comment(Member member, String content, StockTicker stockTicker, Comment parent) {
+    public Comment(Long id, Member member, String content, StockTicker stockTicker, Comment parent) {
+        this.id = id;
         this.member = member;
         this.content = content;
         this.stockTicker = stockTicker;
@@ -104,12 +105,12 @@ public class Comment {
         updated = true;
     }
 
-    public void addChildren(Comment reply) {
-        children.add(reply);
+    public void addReply(Comment reply) {
+        replies.add(reply);
     }
 
     public void deleteChild(Comment reply) {
-        children.remove(reply);
+        replies.remove(reply);
         reply.delete();
     }
 
@@ -126,7 +127,7 @@ public class Comment {
     }
 
     public boolean hasNoReply() {
-        return children.isEmpty();
+        return replies.isEmpty();
     }
 
     public void willBeDeleted() {

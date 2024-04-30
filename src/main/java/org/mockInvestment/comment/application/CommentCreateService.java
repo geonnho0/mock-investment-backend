@@ -52,15 +52,15 @@ public class CommentCreateService {
         Member member = memberRepository.findById(authInfo.getId())
                 .orElseThrow(MemberNotFoundException::new);
 
-        Comment child = Comment.builder()
+        Comment reply = Comment.builder()
                 .content(request.content())
                 .member(member)
                 .stockTicker(parent.getStockTicker())
                 .parent(parent)
                 .build();
-        parent.addChildren(child);
+        parent.addReply(reply);
 
-        commentRepository.save(child);
+        commentRepository.save(reply);
     }
 
 }
