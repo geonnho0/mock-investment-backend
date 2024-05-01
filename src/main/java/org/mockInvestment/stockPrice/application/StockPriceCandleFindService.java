@@ -34,4 +34,9 @@ public class StockPriceCandleFindService {
         return new StockPriceCandlesResponse(stockCode, responses);
     }
 
+    public List<StockPriceCandle> findStockPriceCandles(StockTicker stockTicker, PeriodExtractor periodExtractor) {
+        return stockPriceCandleRepository
+                .findAllByStockTickerAndDateBetween(stockTicker, periodExtractor.getStart(), periodExtractor.getEnd());
+    }
+
 }
