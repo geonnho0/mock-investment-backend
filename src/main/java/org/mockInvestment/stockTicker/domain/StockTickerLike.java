@@ -9,7 +9,7 @@ import org.mockInvestment.member.domain.Member;
 
 @Entity
 @Getter
-@Table(name = "stock_ticker_like")
+@Table(name = "stock_ticker_likes")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StockTickerLike {
 
@@ -17,14 +17,15 @@ public class StockTickerLike {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String stockTicker;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private StockTicker stockTicker;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
 
     @Builder
-    public StockTickerLike(String stockTicker, Member member) {
+    public StockTickerLike(StockTicker stockTicker, Member member) {
         this.stockTicker = stockTicker;
         this.member = member;
     }

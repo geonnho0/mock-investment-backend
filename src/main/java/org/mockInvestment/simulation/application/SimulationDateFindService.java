@@ -11,11 +11,9 @@ import org.mockInvestment.simulation.repository.MemberSimulationDateRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-
 @Service
-@Transactional
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class SimulationDateFindService {
 
     private final MemberSimulationDateRepository memberSimulationDateRepository;
@@ -27,11 +25,7 @@ public class SimulationDateFindService {
         Member member = memberRepository.findById(authInfo.getId())
                 .orElseThrow(MemberNotFoundException::new);
         MemberSimulationDate date = memberSimulationDateRepository.findByMember(member)
-                .orElseGet(() -> {
-                    MemberSimulationDate newDate = new MemberSimulationDate(member, LocalDate.of(2022, 2, 16));
-                    member.startSimulation(newDate);
-                    return memberSimulationDateRepository.save(newDate);
-                });
+                .orElseThrow();
         return new SimulationDateResponse(date.getSimulationDate());
     }
 

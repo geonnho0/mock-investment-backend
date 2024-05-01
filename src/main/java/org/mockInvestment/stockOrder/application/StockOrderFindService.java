@@ -9,6 +9,7 @@ import org.mockInvestment.stockOrder.domain.StockOrder;
 import org.mockInvestment.stockOrder.dto.*;
 import org.mockInvestment.stockOrder.repository.StockOrderRepository;
 import org.mockInvestment.stockTicker.domain.StockTicker;
+import org.mockInvestment.stockTicker.exception.StockTickerNotFoundException;
 import org.mockInvestment.stockTicker.repository.StockTickerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,8 +43,9 @@ public class StockOrderFindService {
 
         Member member = memberRepository.findById(authInfo.getId())
                 .orElseThrow(MemberNotFoundException::new);
-        StockTicker stockTicker = stockTickerRepository.findTop1ByCodeOrderByDate(stockCode).get(0);
-        List<StockOrder> stockOrders = stockOrderRepository.findAllByMemberAndStockTicker(member, stockTicker.getCode());
+        StockTicker stockTicker = stockTickerRepository.findByCode(stockCode)
+                .orElseThrow(StockTickerNotFoundException::new);
+        List<StockOrder> stockOrders = stockOrderRepository.findAllByMemberAndStockTicker(member, stockTicker);
 
         return createStockOrderHistoriesResponse(stockOrders);
     }
@@ -51,10 +53,8 @@ public class StockOrderFindService {
     private StockOrderHistoriesResponse createStockOrderHistoriesResponse(List<StockOrder> stockOrders) {
         List<StockOrderHistoryResponse> histories = new ArrayList<>();
         for (StockOrder stockOrder : stockOrders) {
-            StockTicker stockTicker = stockTickerRepository.findTop1ByCodeOrderByDate(stockOrder.getStockTicker()).get(0);
-            histories.add(StockOrderHistoryResponse.of(stockOrder, stockTicker));
+            histories.add(StockOrderHistoryResponse.of(stockOrder));
         }
-
         return new StockOrderHistoriesResponse(histories);
     }
 

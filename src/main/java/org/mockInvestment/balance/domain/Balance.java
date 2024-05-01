@@ -3,14 +3,15 @@ package org.mockInvestment.balance.domain;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 import org.mockInvestment.balance.exception.PaymentFailureException;
 import org.mockInvestment.member.domain.Member;
 
 @Entity
-@Table(name = "balance")
+@Table(name = "balances")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Balance {
+
+    public static final Double DEFAULT_BALANCE = 1000000.0;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,13 +20,12 @@ public class Balance {
     @OneToOne(mappedBy = "balance")
     private Member member;
 
-    @ColumnDefault("1000000")
     private Double balance;
 
 
     public Balance(Member member) {
         this.member = member;
-        balance = 1000000.0;
+        reset();
     }
 
     public void pay(Double price) {
@@ -44,7 +44,7 @@ public class Balance {
     }
 
     public void reset() {
-        balance = 1000000.0;
+        balance = DEFAULT_BALANCE;
     }
 
 }

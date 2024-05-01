@@ -32,9 +32,9 @@ public class CommentApi {
 
 
     @GetMapping("/stocks/{code}/comments")
-    public ResponseEntity<CommentsResponse> findComments(@PathVariable("code") String stockCode,
-                                                         @Login AuthInfo authInfo) {
-        CommentsResponse response = commentFindService.findCommentsByCode(authInfo, stockCode);
+    public ResponseEntity<CommentsResponse> findAllCommentsByCode(@PathVariable("code") String stockCode,
+                                                                  @Login AuthInfo authInfo) {
+        CommentsResponse response = commentFindService.findAllCommentsByCode(authInfo, stockCode);
         return ResponseEntity.ok(response);
     }
 

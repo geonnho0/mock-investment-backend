@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @Entity
 @Getter
-@Table(name = "kor_price")
+@Table(name = "stock_price_candles")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StockPriceCandle {
 
@@ -19,19 +19,23 @@ public class StockPriceCandle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "종목코드")
-    private String stockTicker;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private StockTicker stockTicker;
 
-    @CreatedDate
-    @Column(name = "날짜")
     private LocalDate date;
 
     @Embedded
     private StockPrice price;
 
-    @Column(name = "거래량")
     private Long volume;
 
+
+    public StockPriceCandle(StockTicker stockTicker, StockPrice price, Long volume, LocalDate date) {
+        this.stockTicker = stockTicker;
+        this.price = price;
+        this.volume = volume;
+        this.date = date;
+    }
 
     public Double getClose() {
         return price.getClose();

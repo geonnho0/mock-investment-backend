@@ -29,12 +29,13 @@ public class StockTickerLikeToggleService {
 
 
     public StockTickerLikeResponse toggleLike(String stockCode, AuthInfo authInfo) {
-        StockTicker stockTicker = stockTickerRepository.findTop1ByCodeOrderByDate(stockCode).get(0);
+        StockTicker stockTicker = stockTickerRepository.findByCode(stockCode)
+                .orElseThrow(StockTickerNotFoundException::new);
 
         Member member = memberRepository.findById(authInfo.getId())
                 .orElseThrow(MemberNotFoundException::new);
 
-        Optional<StockTickerLike> stockTickerLike = stockTickerLikeRepository.findByStockTickerAndMember(stockTicker.getCode(), member);
+        Optional<StockTickerLike> stockTickerLike = stockTickerLikeRepository.findByStockTickerAndMember(stockTicker, member);
 
         if (stockTickerLike.isEmpty()) {
             addLike(stockTicker, member);
@@ -47,7 +48,7 @@ public class StockTickerLikeToggleService {
 
     private void addLike(StockTicker stockTicker, Member member) {
         StockTickerLike stockTickerLike = StockTickerLike.builder()
-                .stockTicker(stockTicker.getCode())
+                .stockTicker(stockTicker)
                 .member(member)
                 .build();
 

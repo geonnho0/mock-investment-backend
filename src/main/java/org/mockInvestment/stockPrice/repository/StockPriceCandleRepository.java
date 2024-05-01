@@ -8,12 +8,15 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface StockPriceCandleRepository extends JpaRepository<StockPriceCandle, Long> {
 
-    List<StockPriceCandle> findTop2ByStockTickerAndDateLessThanEqualOrderByDateDesc(String stockTicker, LocalDate date);
+    Optional<StockPriceCandle> findByStockTickerAndDate(StockTicker stockTicker, LocalDate date);
 
-    List<StockPriceCandle> findAllByStockTickerAndDateBetween(String stockTicker, LocalDate startDate, LocalDate endDate);
+    List<StockPriceCandle> findTop2ByStockTickerAndDateLessThanEqualOrderByDateDesc(StockTicker stockTicker, LocalDate date);
+
+    List<StockPriceCandle> findAllByStockTickerAndDateBetween(StockTicker stockTicker, LocalDate startDate, LocalDate endDate);
 
     @Query(value = "SELECT DISTINCT spc.date FROM StockPriceCandle spc WHERE spc.date >= :date ORDER BY spc.date")
     List<LocalDate> findCandidateDates(LocalDate date, Pageable pageable);

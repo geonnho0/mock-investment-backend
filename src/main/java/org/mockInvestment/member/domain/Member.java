@@ -11,6 +11,7 @@ import org.mockInvestment.stockTicker.domain.StockTickerLike;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -21,8 +22,6 @@ public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String name;
 
     private String email;
 
@@ -49,13 +48,14 @@ public class Member {
 
 
     @Builder
-    public Member(String name, String email, String role, String username) {
-        this.name = name;
+    public Member(Long id, String email, String role, String username) {
+        this.id = id;
         this.email = email;
         this.role = role;
         this.username = username;
         nickname = username;
         balance = new Balance(this);
+        this.simulationDate = new MemberSimulationDate(this);
     }
 
     public void applyPendingStockOrder(PendingStockOrder stockOrder) {
@@ -65,11 +65,11 @@ public class Member {
             sellStock(stockOrder);
     }
 
-    public void buyStock(PendingStockOrder stockOrder) {
+    private void buyStock(PendingStockOrder stockOrder) {
         balance.pay(stockOrder.totalBidPrice());
     }
 
-    public void sellStock(PendingStockOrder stockOrder) {
+    private void sellStock(PendingStockOrder stockOrder) {
         balance.receive(stockOrder.totalBidPrice());
     }
 
@@ -78,18 +78,10 @@ public class Member {
     }
 
     public boolean equals(Member member) {
-        return this.id == member.getId();
+        return Objects.equals(this.id, member.getId());
     }
 
-    public void updateEMail(String email) {
-        this.email = email;
-    }
-
-    public void updateName(String name) {
-        this.name = name;
-    }
-
-    public void resetBalance() {
+    public void resetSimulation() {
         balance.reset();
         simulationDate.reset();
     }
@@ -103,8 +95,12 @@ public class Member {
         stockTickerLike.delete();
     }
 
-    public void startSimulation(MemberSimulationDate simulationDate) {
-        this.simulationDate = simulationDate;
+    public void addOwnStock(MemberOwnStock memberOwnStock) {
+        ownStocks.add(memberOwnStock);
+    }
+
+    public void deleteOwnStock(MemberOwnStock memberOwnStock) {
+        ownStocks.remove(memberOwnStock);
     }
 
 }

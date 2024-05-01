@@ -11,6 +11,9 @@ import org.mockInvestment.stockOrder.domain.StockOrderType;
 import org.mockInvestment.stockOrder.dto.NewStockOrderRequest;
 import org.mockInvestment.stockOrder.repository.PendingStockOrderCacheRepository;
 import org.mockInvestment.stockOrder.repository.StockOrderRepository;
+import org.mockInvestment.stockTicker.domain.StockTicker;
+import org.mockInvestment.stockTicker.exception.StockTickerNotFoundException;
+import org.mockInvestment.stockTicker.repository.StockTickerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +26,8 @@ public class StockOrderCreateService {
 
     private final StockOrderRepository stockOrderRepository;
 
+    private final StockTickerRepository stockTickerRepository;
+
     private final PendingStockOrderCacheRepository pendingStockOrderCacheRepository;
 
 
@@ -33,14 +38,17 @@ public class StockOrderCreateService {
         StockOrder stockOrder = createStockOrder(member, code, request);
         StockOrder saved = stockOrderRepository.save(stockOrder);
 
-        PendingStockOrder pendingStockOrder = PendingStockOrder.from(saved, member);
+        PendingStockOrder pendingStockOrder = PendingStockOrder.of(saved, member);
         pendingStockOrderCacheRepository.save(pendingStockOrder);
     }
 
     private StockOrder createStockOrder(Member member, String code, NewStockOrderRequest request) {
+        StockTicker stockTicker = stockTickerRepository.findByCode(code)
+                .orElseThrow(StockTickerNotFoundException::new);
+
         return StockOrder.builder()
                 .member(member)
-                .stockTicker(code)
+                .stockTicker(stockTicker)
                 .bidPrice(request.bidPrice())
                 .quantity(request.quantity())
                 .stockOrderType(StockOrderType.parse(request.orderType()))

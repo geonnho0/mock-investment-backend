@@ -15,7 +15,7 @@ import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/stock-ticker")
+@RequestMapping("/stock-tickers")
 public class StockTickerApi {
 
     private final StockTickerFindService stockTickerFindService;
@@ -24,22 +24,28 @@ public class StockTickerApi {
 
 
     @GetMapping("/{code}")
-    public ResponseEntity<StockTickerResponse> findStockTickerByCode(@PathVariable("code") String stockCode,
-                                                                     @Login AuthInfo authInfo) {
+    public ResponseEntity<StockTickerResponse> findStockTickerByCode(
+            @PathVariable("code") String stockCode,
+            @Login AuthInfo authInfo
+    ) {
         StockTickerResponse response = stockTickerFindService.findStockTickerByCode(stockCode, authInfo);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{code}/like")
-    public ResponseEntity<StockTickerLikeResponse> toggleStockTickerLike(@PathVariable("code") String stockCode,
-                                                                         @Login AuthInfo authInfo) {
+    public ResponseEntity<StockTickerLikeResponse> toggleStockTickerLike(
+            @PathVariable("code") String stockCode,
+            @Login AuthInfo authInfo
+    ) {
         StockTickerLikeResponse response = stockTickerLikeToggleService.toggleLike(stockCode, authInfo);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<StockTickersResponse> findStockTickersByKeyword(@RequestParam("keyword") String keyword,
-                                                                         @Login AuthInfo authInfo) {
+    public ResponseEntity<StockTickersResponse> findStockTickersByKeyword(
+            @RequestParam("keyword") String keyword,
+            @Login AuthInfo authInfo
+    ) {
         StockTickersResponse response = stockTickerFindService.findStockTickersByKeyword(keyword, authInfo);
         return ResponseEntity.ok(response);
     }

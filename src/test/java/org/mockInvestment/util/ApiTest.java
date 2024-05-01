@@ -5,15 +5,27 @@ import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockInvestment.balance.api.BalanceApi;
-import org.mockInvestment.balance.application.BalanceService;
+import org.mockInvestment.balance.application.BalanceFindService;
+import org.mockInvestment.comment.api.CommentApi;
+import org.mockInvestment.comment.application.*;
+import org.mockInvestment.member.api.MemberApi;
+import org.mockInvestment.member.application.MemberNicknameUpdateService;
+import org.mockInvestment.memberOwnStock.api.MemberOwnStockApi;
+import org.mockInvestment.memberOwnStock.application.MemberOwnStockFindService;
+import org.mockInvestment.stockOrder.api.StockOrderApi;
+import org.mockInvestment.stockOrder.application.StockOrderCreateService;
+import org.mockInvestment.stockOrder.application.StockOrderDeleteService;
 import org.mockInvestment.stockPrice.api.StockPriceApi;
 import org.mockInvestment.stockPrice.application.StockPriceCandleFindService;
 import org.mockInvestment.global.auth.AuthFilter;
 import org.mockInvestment.global.auth.AuthenticationPrincipalArgumentResolver;
 import org.mockInvestment.global.auth.token.JwtTokenProvider;
-import org.mockInvestment.stockOrder.api.StockOrderApi;
 import org.mockInvestment.stockOrder.application.StockOrderFindService;
+import org.mockInvestment.stockPrice.application.StockPriceFindService;
 import org.mockInvestment.stockPrice.util.PeriodExtractor;
+import org.mockInvestment.stockTicker.api.StockTickerApi;
+import org.mockInvestment.stockTicker.application.StockTickerFindService;
+import org.mockInvestment.stockTicker.application.StockTickerLikeToggleService;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.restdocs.RestDocumentationContextProvider;
@@ -34,8 +46,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 @WebMvcTest({
         BalanceApi.class,
+        MemberApi.class,
+        StockOrderApi.class,
         StockPriceApi.class,
-        StockOrderApi.class
+        StockTickerApi.class,
+        MemberOwnStockApi.class,
+        CommentApi.class,
 })
 @WithMockUser
 @ExtendWith(RestDocumentationExtension.class)
@@ -44,7 +60,10 @@ public class ApiTest {
     protected MockMvcRequestSpecification restDocs;
 
     @MockBean
-    protected BalanceService balanceService;
+    protected BalanceFindService balanceFindService;
+
+    @MockBean
+    protected MemberNicknameUpdateService memberNicknameUpdateService;
 
     @MockBean
     protected PeriodExtractor periodExtractor;
@@ -53,7 +72,43 @@ public class ApiTest {
     protected StockPriceCandleFindService stockPriceCandleFindService;
 
     @MockBean
+    protected StockPriceFindService stockPriceFindService;
+
+    @MockBean
     protected StockOrderFindService stockOrderFindService;
+
+    @MockBean
+    protected StockOrderCreateService stockOrderCreateService;
+
+    @MockBean
+    protected StockOrderDeleteService stockOrderDeleteService;
+
+    @MockBean
+    protected StockTickerFindService stockTickerFindService;
+
+    @MockBean
+    protected StockTickerLikeToggleService stockTickerLikeToggleService;
+
+    @MockBean
+    protected MemberOwnStockFindService memberOwnStockFindService;
+
+    @MockBean
+    protected CommentFindService commentFindService;
+
+    @MockBean
+    protected CommentCreateService commentCreateService;
+
+    @MockBean
+    protected CommentReportCreateService commentReportCreateService;
+
+    @MockBean
+    protected CommentUpdateService commentUpdateService;
+
+    @MockBean
+    protected CommentDeleteService commentDeleteService;
+
+    @MockBean
+    protected CommentLikeToggleService commentLikeToggleService;
 
     @MockBean
     protected AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver;

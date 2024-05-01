@@ -44,7 +44,7 @@ public class StockOrderApi {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/stock-orders/{id}")
+    @DeleteMapping("/stock-orders/{id}")
     public ResponseEntity<Void> cancelStockOrder(@PathVariable("id") long stockOrderId) {
         stockOrderDeleteService.deleteStockOrder(stockOrderId);
         return ResponseEntity.noContent().build();

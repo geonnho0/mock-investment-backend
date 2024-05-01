@@ -15,4 +15,5 @@ public class AuthApi {
     public ResponseEntity<AuthInfo> oauthLoginInfo(@Login AuthInfo authInfo) {
         return ResponseEntity.ok(authInfo);
     }
+
 }
