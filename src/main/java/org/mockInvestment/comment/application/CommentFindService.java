@@ -12,6 +12,7 @@ import org.mockInvestment.member.domain.Member;
 import org.mockInvestment.member.exception.MemberNotFoundException;
 import org.mockInvestment.member.repository.MemberRepository;
 import org.mockInvestment.stockTicker.domain.StockTicker;
+import org.mockInvestment.stockTicker.exception.StockTickerNotFoundException;
 import org.mockInvestment.stockTicker.repository.StockTickerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,11 +34,12 @@ public class CommentFindService {
     private final MemberRepository memberRepository;
 
 
-    public CommentsResponse findCommentsByCode(AuthInfo authInfo, String stockCode) {
-        StockTicker stockTicker = stockTickerRepository.findTop1ByCodeOrderByDate(stockCode).get(0);
+    public CommentsResponse findAllCommentsByCode(AuthInfo authInfo, String stockCode) {
+        StockTicker stockTicker = stockTickerRepository.findByCode(stockCode)
+                .orElseThrow(StockTickerNotFoundException::new);
         Member member = memberRepository.findById(authInfo.getId())
                 .orElseThrow(MemberNotFoundException::new);
-        List<CommentResponse> comments = commentRepository.findAllByStockTicker(stockTicker.getCode()).stream()
+        List<CommentResponse> comments = commentRepository.findAllByStockTicker(stockTicker).stream()
                 .map(comment -> convertToCommentResponse(comment, member))
                 .filter(response -> !Objects.isNull(response))
                 .toList();
@@ -53,7 +55,7 @@ public class CommentFindService {
     }
 
     private List<ReplyResponse> convertToReplyResponses(Comment parent, Member member) {
-        return parent.getChildren().stream()
+        return parent.getReplies().stream()
                 .map(reply -> {
                     boolean liked = commentLikeRepository.existsByCommentAndMember(reply, member);
                     return ReplyResponse.of(reply, liked);

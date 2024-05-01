@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    List<Comment> findAllByStockTicker(String stockTicker);
+    List<Comment> findAllByStockTicker(StockTicker stockTicker);
 
     @Transactional
     @Modifying(clearAutomatically = true)

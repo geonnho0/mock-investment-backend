@@ -18,7 +18,7 @@ import java.time.LocalDate;
 
 @Entity
 @Getter
-@Table(name = "kor_stock_order")
+@Table(name = "stock_orders")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StockOrder {
 
@@ -31,7 +31,8 @@ public class StockOrder {
 
     private LocalDate orderDate;
 
-    private String stockTicker;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private StockTicker stockTicker;
 
     private Double bidPrice;
 
@@ -47,7 +48,8 @@ public class StockOrder {
 
 
     @Builder
-    public StockOrder(Long id, Member member, String stockTicker, Double bidPrice, Long quantity, StockOrderType stockOrderType, LocalDate orderDate) {
+    public StockOrder(Long id, Member member, StockTicker stockTicker, Double bidPrice,
+                      Long quantity, StockOrderType stockOrderType, LocalDate orderDate) {
         this.id = id;
         this.member = member;
         this.stockTicker = stockTicker;

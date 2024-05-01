@@ -3,15 +3,17 @@ package org.mockInvestment.stockOrder.domain;
 import org.mockInvestment.member.domain.Member;
 import org.mockInvestment.stockPrice.dto.RecentStockPrice;
 
+import java.util.Objects;
+
 public record PendingStockOrder(Long id, String code, Long memberId, boolean buy, Double bidPrice, Long quantity) {
 
-    public static PendingStockOrder from(StockOrder stockOrder, Member member) {
-        return new PendingStockOrder(stockOrder.getId(), stockOrder.getStockTicker(), member.getId(),
+    public static PendingStockOrder of(StockOrder stockOrder, Member member) {
+        return new PendingStockOrder(stockOrder.getId(), stockOrder.getStockTicker().getCode(), member.getId(),
                 stockOrder.getStockOrderType() == StockOrderType.BUY, stockOrder.getBidPrice(), stockOrder.getQuantity());
     }
 
     public boolean orderedBy(Long memberId) {
-        return this.memberId == memberId;
+        return Objects.equals(this.memberId, memberId);
     }
 
     public boolean cannotExecute(RecentStockPrice recentStockPrice) {

@@ -9,6 +9,6 @@ import java.util.Optional;
 
 public interface MemberOwnStockRepository extends JpaRepository<MemberOwnStock, Long> {
 
-    Optional<MemberOwnStock> findByMemberAndStockTicker(Member member, String stockTicker);
+    Optional<MemberOwnStock> findByMemberAndStockTicker(Member member, StockTicker stockTicker);
 
 }

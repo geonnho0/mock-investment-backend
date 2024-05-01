@@ -11,6 +11,6 @@ public interface StockOrderRepository extends JpaRepository<StockOrder, Long> {
 
     List<StockOrder> findAllByMember(Member member);
 
-    List<StockOrder> findAllByMemberAndStockTicker(Member member, String stockTicker);
+    List<StockOrder> findAllByMemberAndStockTicker(Member member, StockTicker stockTicker);
 
 }

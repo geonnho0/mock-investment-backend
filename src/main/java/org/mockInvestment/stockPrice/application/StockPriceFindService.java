@@ -12,6 +12,7 @@ import org.mockInvestment.stockPrice.dto.StockPricesResponse;
 import org.mockInvestment.stockPrice.repository.StockPriceCandleRepository;
 import org.mockInvestment.stockTicker.domain.StockTicker;
 import org.mockInvestment.stockTicker.domain.StockTickerLike;
+import org.mockInvestment.stockTicker.exception.StockTickerNotFoundException;
 import org.mockInvestment.stockTicker.repository.StockTickerLikeRepository;
 import org.mockInvestment.stockTicker.repository.StockTickerRepository;
 import org.springframework.stereotype.Service;
@@ -35,38 +36,50 @@ public class StockPriceFindService {
     private final StockTickerLikeRepository stockTickerLikeRepository;
 
 
-    public StockPricesResponse findStockPricesAtDate(List<String> stockCodes, LocalDate date) {
-        List<StockPriceResponse> responses = new ArrayList<>();
-        for (String code : stockCodes)
-            responses.add(findStockPriceAtDate(code, date));
-        return new StockPricesResponse(responses);
+    public StockPricesResponse findStockPricesByCodeAtDate(List<String> stockCodes, LocalDate date) {
+        List<StockTicker> stockTickers = stockCodes.stream()
+                .map(code -> stockTickerRepository.findByCode(code)
+                        .orElseThrow(StockTickerNotFoundException::new))
+                .toList();
+        return findStockPricesAtDate(stockTickers, date);
     }
 
-    public StockPriceResponse findStockPriceAtDate(String stockCode, LocalDate date) {
-        RecentStockPrice recentStockPrice = findRecentStockPriceAtDate(stockCode, date);
-        return StockPriceResponse.of(stockCode, recentStockPrice);
-    }
-
-    public StockPricesResponse findLikedStockPricesAtDate(LocalDate date, AuthInfo authInfo) {
+    public StockPricesResponse findAllLikedStockPricesAtDate(LocalDate date, AuthInfo authInfo) {
         Member member = memberRepository.findById(authInfo.getId())
                 .orElseThrow(MemberNotFoundException::new);
 
-        List<String> stockCodes = stockTickerLikeRepository.findAllByMember(member).stream()
+        List<StockTicker> stockTickers = stockTickerLikeRepository.findAllByMember(member).stream()
                 .map(StockTickerLike::getStockTicker)
                 .toList();
 
-        return findStockPricesAtDate(stockCodes, date);
+        return findStockPricesAtDate(stockTickers, date);
     }
 
-    public RecentStockPrice findRecentStockPriceAtDate(String stockCode, LocalDate date) {
-        StockTicker stockTicker = stockTickerRepository.findTop1ByCodeAndDateLessThanEqualOrderByDateDesc(stockCode, date).get(0);
-        List<StockPriceCandle> stockPriceCandles = stockPriceCandleRepository.findTop2ByStockTickerAndDateLessThanEqualOrderByDateDesc(stockCode, date);
+    public RecentStockPrice findRecentStockPriceAtDate(StockTicker stockTicker, LocalDate date) {
+        List<StockPriceCandle> stockPriceCandles = stockPriceCandleRepository
+                .findTop2ByStockTickerAndDateLessThanEqualOrderByDateDesc(stockTicker, date);
+        return createRecentStockPrice(stockTicker, stockPriceCandles);
+    }
+
+    public StockPriceResponse findStockPriceAtDate(StockTicker stockTicker, LocalDate date) {
+        RecentStockPrice recentStockPrice = findRecentStockPriceAtDate(stockTicker, date);
+        return StockPriceResponse.of(stockTicker, recentStockPrice);
+    }
+
+    private StockPricesResponse findStockPricesAtDate(List<StockTicker> stockTickers, LocalDate date) {
+        List<StockPriceResponse> responses = new ArrayList<>();
+        for (StockTicker stockTicker : stockTickers)
+            responses.add(findStockPriceAtDate(stockTicker, date));
+        return new StockPricesResponse(responses);
+    }
+
+    private RecentStockPrice createRecentStockPrice(StockTicker stockTicker, List<StockPriceCandle> stockPriceCandles) {
         StockPriceCandle current = stockPriceCandles.get(0);
         double curr = current.getClose();
         double base = stockPriceCandles.get(1).getClose();
         double high = current.getHigh();
         double low = current.getLow();
-        return new RecentStockPrice(stockCode, stockTicker.getName(), curr, base, high, low);
+        return new RecentStockPrice(stockTicker.getCode(), stockTicker.getName(), curr, base, high, low);
     }
 
 }

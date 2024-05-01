@@ -30,7 +30,6 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .claim("id", authInfo.getId())
-                .claim("name", authInfo.getName())
                 .claim("username", authInfo.getUsername())
                 .claim("role", authInfo.getRole())
                 .setIssuedAt(now)
@@ -62,17 +61,16 @@ public class JwtTokenProvider {
                     .getBody();
         } catch (ExpiredJwtException ex) {
             Long id = ex.getClaims().get("id", Long.class);
-            String name = ex.getClaims().get("name", String.class);
             String username = ex.getClaims().get("username", String.class);
             String role = ex.getClaims().get("role", String.class);
-            return new AuthInfo(id, role, name, username);
+            return new AuthInfo(id, role, username);
         }
 
         Long id = claims.get("id", Long.class);
         String name = claims.get("name", String.class);
         String username = claims.get("username", String.class);
         String role = claims.get("role", String.class);
-        return new AuthInfo(id, role, name, username);
+        return new AuthInfo(id, role, username);
     }
 
 }

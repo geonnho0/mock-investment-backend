@@ -8,6 +8,7 @@ import org.mockInvestment.member.repository.MemberRepository;
 import org.mockInvestment.stockTicker.dto.StockTickerResponse;
 import org.mockInvestment.stockTicker.domain.StockTicker;
 import org.mockInvestment.stockTicker.dto.StockTickersResponse;
+import org.mockInvestment.stockTicker.exception.StockTickerNotFoundException;
 import org.mockInvestment.stockTicker.repository.StockTickerLikeRepository;
 import org.mockInvestment.stockTicker.repository.StockTickerRepository;
 import org.springframework.stereotype.Service;
@@ -29,10 +30,11 @@ public class StockTickerFindService {
 
 
     public StockTickerResponse findStockTickerByCode(String stockCode, AuthInfo authInfo) {
-        StockTicker stockTicker = stockTickerRepository.findTop1ByCodeOrderByDate(stockCode).get(0);
+        StockTicker stockTicker = stockTickerRepository.findByCode(stockCode)
+                .orElseThrow(StockTickerNotFoundException::new);
         Member member = memberRepository.findById(authInfo.getId())
                 .orElseThrow(MemberNotFoundException::new);
-        boolean isLiked = stockTickerLikeRepository.existsByStockTickerAndMember(stockTicker.getCode(), member);
+        boolean isLiked = stockTickerLikeRepository.existsByStockTickerAndMember(stockTicker, member);
         return new StockTickerResponse(stockTicker.getName(), stockTicker.getCode(), isLiked);
     }
 
@@ -42,9 +44,9 @@ public class StockTickerFindService {
         Member member = memberRepository.findById(authInfo.getId())
                 .orElseThrow(MemberNotFoundException::new);
         List<StockTickerResponse> responses = stockTickerRepository.findAllByKeyword(keyword).stream()
-                .map(codeAndName -> {
-                    boolean isLiked = stockTickerLikeRepository.existsByStockTickerAndMember(codeAndName[0], member);
-                    return new StockTickerResponse(codeAndName[1], codeAndName[0], isLiked);
+                .map(stockTicker -> {
+                    boolean isLiked = stockTickerLikeRepository.existsByStockTickerAndMember(stockTicker, member);
+                    return new StockTickerResponse(stockTicker.getName(), stockTicker.getCode(), isLiked);
                 })
                 .toList();
         return new StockTickersResponse(responses);
