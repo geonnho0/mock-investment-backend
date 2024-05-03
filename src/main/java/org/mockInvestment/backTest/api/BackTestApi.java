@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.mockInvestment.backTest.application.BackTestCrossStrategyService;
 import org.mockInvestment.backTest.application.BackTestRSIStrategyService;
 import org.mockInvestment.backTest.dto.request.CrossStrategyRequest;
-import org.mockInvestment.backTest.dto.request.RSIStrategyRequest;
+import org.mockInvestment.backTest.dto.request.StrategyRequest;
 import org.mockInvestment.backTest.dto.response.BackTestResultResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +30,7 @@ public class BackTestApi {
             @RequestParam("sellRSI") double sellRSI,
             @RequestParam("amount") double amount
     ) {
-        RSIStrategyRequest request = new RSIStrategyRequest(stockCode, startDate, endDate, buyRSI, sellRSI, amount);
+        StrategyRequest request = new StrategyRequest(stockCode, startDate, endDate, buyRSI, sellRSI, amount);
         BackTestResultResponse response = backTestRSIStrategyService.runTest(request);
         return ResponseEntity.ok(response);
     }
@@ -42,7 +42,7 @@ public class BackTestApi {
             @RequestParam("end") LocalDate endDate,
             @RequestParam("amount") double amount
     ) {
-        CrossStrategyRequest request = new CrossStrategyRequest(true, true, stockCode, startDate, endDate, amount);
+        StrategyRequest request = new StrategyRequest(stockCode, startDate, endDate, 0, 0, amount);
         BackTestResultResponse response = backTestCrossStrategyService.runTest(request);
         return ResponseEntity.ok(response);
     }

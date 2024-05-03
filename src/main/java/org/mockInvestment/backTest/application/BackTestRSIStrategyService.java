@@ -1,22 +1,16 @@
 package org.mockInvestment.backTest.application;
 
 import lombok.RequiredArgsConstructor;
-import org.mockInvestment.backTest.dto.request.RSIStrategyRequest;
+import org.mockInvestment.backTest.domain.BackTestTradeHistories;
+import org.mockInvestment.backTest.dto.request.StrategyRequest;
 import org.mockInvestment.backTest.dto.response.BackTestResultResponse;
 import org.mockInvestment.backTest.dto.response.BackTestTradeHistory;
-import org.mockInvestment.stockPrice.application.StockPriceCandleFindService;
+import org.mockInvestment.stockPrice.application.StockPriceFindService;
 import org.mockInvestment.stockPrice.domain.StockPriceCandle;
-import org.mockInvestment.stockPrice.repository.StockPriceCandleRepository;
-import org.mockInvestment.stockPrice.util.PeriodExtractor;
-import org.mockInvestment.stockTicker.domain.StockTicker;
-import org.mockInvestment.stockTicker.exception.StockTickerNotFoundException;
-import org.mockInvestment.stockTicker.repository.StockTickerRepository;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,52 +18,45 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class BackTestRSIStrategyService {
 
-    private final StockTickerRepository stockTickerRepository;
-
-    private final StockPriceCandleRepository stockPriceCandleRepository;
-
-    private final StockPriceCandleFindService stockPriceCandleFindService;
+    private final StockPriceFindService stockPriceFindService;
 
 
-    public BackTestResultResponse runTest(RSIStrategyRequest request) {
-        StockTicker stockTicker = stockTickerRepository.findByCode(request.stockCode())
-                .orElseThrow(StockTickerNotFoundException::new);
-        List<BackTestTradeHistory> histories = new ArrayList<>();
-        LocalDate startDate = request.startDate();
-        while (startDate.isBefore(request.endDate())) {
-            PeriodExtractor periodExtractor = new PeriodExtractor(startDate, "6m");
-            List<StockPriceCandle> stockPriceCandles = stockPriceCandleFindService.findStockPriceCandles(stockTicker, periodExtractor);
-            double rsi = TechnicalIndicatorCalculator.calculateRSI(stockPriceCandles);
-            double currentPrice = stockPriceCandles.get(stockPriceCandles.size() - 1).getClose();
+    public BackTestResultResponse runTest(StrategyRequest request) {
+        List<StockPriceCandle> prices = stockPriceFindService
+                .findStockPricesBetweenDate(request.stockCode(), request.startDate(), request.endDate());
+        RSICalculator calculator = new RSICalculator(prices.stream().map(StockPriceCandle::getClose).toList());
+        BackTestTradeHistories histories = new BackTestTradeHistories();
 
-            if (histories.isEmpty()) {
-                histories.add(BackTestTradeHistory.of(true, currentPrice, request.amount(), rsi, startDate));
-                startDate = getNextMarketDate(startDate);
-                continue;
-            }
-
-            BackTestTradeHistory lastOrder = histories.get(histories.size() - 1);
-            double amount = calcAmount(lastOrder.amount(), lastOrder.price(), currentPrice);
-            if (rsi >= request.sellRSI()) {  // should sell
-                if (lastOrder.buy())
-                    histories.add(BackTestTradeHistory.of(false, currentPrice, amount, rsi, startDate));
-            }
-            else if (rsi <= request.buyRSI()) {  // should buy
-                if (!lastOrder.buy())
-                    histories.add(BackTestTradeHistory.of(true, currentPrice, amount, rsi, startDate));
-            }
-            startDate = getNextMarketDate(startDate);
+        for (StockPriceCandle price : prices) {
+            double rsi = calculator.calculate();
+            addHistoryWhenNecessary(histories, price.getClose(), rsi, request, price.getDate());
+            calculator.add(price.getClose());
         }
-        return new BackTestResultResponse(histories);
+        return BackTestResultResponse.from(histories);
     }
 
-    private double calcAmount(double previousAmount, double previousPrice, double currentPrice) {
-        return previousAmount * (currentPrice / previousPrice);
-    }
-
-    private LocalDate getNextMarketDate(LocalDate previousDate) {
-        List<LocalDate> dates = stockPriceCandleRepository.findCandidateDates(previousDate, PageRequest.of(0, 2));
-        return dates.get(1);
+    private void addHistoryWhenNecessary(
+            BackTestTradeHistories histories,
+            double currentPrice,
+            double rsi,
+            StrategyRequest request,
+            LocalDate date
+    ) {
+        if (histories.isEmpty()) {
+            String message = "Buy with rsi: " + rsi;
+            histories.addHistoryIfEmpty(new BackTestTradeHistory(true, currentPrice, request.amount(), message, date));
+            return;
+        }
+        double amount = histories.calculateLastAmount(currentPrice);
+        if (rsi >= request.sellRSI()) {
+            String message = "Sell with rsi: " + rsi;
+            histories.addHistoryIfLastTradeIsBuy(new BackTestTradeHistory(false, currentPrice, amount, message, date));
+            return;
+        }
+        if (rsi <= request.buyRSI()) {
+            String message = "Buy with rsi: " + rsi;
+            histories.addHistoryIfLastTradeIsSell(new BackTestTradeHistory(true, currentPrice, amount, message, date));
+        }
     }
 
 }

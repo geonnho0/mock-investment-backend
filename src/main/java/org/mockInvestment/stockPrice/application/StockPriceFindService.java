@@ -66,6 +66,16 @@ public class StockPriceFindService {
         return StockPriceResponse.of(stockTicker, recentStockPrice);
     }
 
+    public List<StockPriceCandle> findStockPricesBetweenDate(String stockCode, LocalDate startDate, LocalDate endDate) {
+        StockTicker stockTicker = stockTickerRepository.findByCode(stockCode)
+                .orElseThrow(StockTickerNotFoundException::new);
+        return findStockPricesBetweenDate(stockTicker, startDate, endDate);
+    }
+
+    public List<StockPriceCandle> findStockPricesBetweenDate(StockTicker stockTicker, LocalDate startDate, LocalDate endDate) {
+        return stockPriceCandleRepository.findAllByStockTickerAndDateBetween(stockTicker, startDate, endDate);
+    }
+
     private StockPricesResponse findStockPricesAtDate(List<StockTicker> stockTickers, LocalDate date) {
         List<StockPriceResponse> responses = new ArrayList<>();
         for (StockTicker stockTicker : stockTickers)

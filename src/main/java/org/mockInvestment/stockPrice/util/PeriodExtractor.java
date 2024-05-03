@@ -14,7 +14,9 @@ public class PeriodExtractor {
 
     public PeriodExtractor(LocalDate end, String period) {
         this.end = end;
-        if (period.equals("6m"))
+        if (period.equals("1m"))
+            start = end.minusMonths(1);
+        else if (period.equals("6m"))
             start = end.minusMonths(6);
         else if (period.equals("1y"))
             start = end.minusYears(1);

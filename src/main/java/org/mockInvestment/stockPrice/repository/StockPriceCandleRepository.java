@@ -8,11 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 public interface StockPriceCandleRepository extends JpaRepository<StockPriceCandle, Long> {
-
-    Optional<StockPriceCandle> findByStockTickerAndDate(StockTicker stockTicker, LocalDate date);
 
     List<StockPriceCandle> findTop2ByStockTickerAndDateLessThanEqualOrderByDateDesc(StockTicker stockTicker, LocalDate date);
 
