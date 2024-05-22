@@ -25,10 +25,4 @@ public class StockValueApi {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/stock-values/ranking")
-    public ResponseEntity<StockValuesRankingResponse> findStockValuesRanking(@RequestParam("date") String date) {
-        StockValuesRankingResponse response = stockValueFindService.findStockValuesRanking(date);
-        return ResponseEntity.ok(response);
-    }
-
 }

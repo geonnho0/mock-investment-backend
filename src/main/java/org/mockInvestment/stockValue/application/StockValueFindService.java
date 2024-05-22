@@ -45,23 +45,4 @@ public class StockValueFindService {
         return new StockValuesResponse(responses);
     }
 
-    public StockValuesRankingResponse findStockValuesRanking(String date) {
-        List<StockValueResponse> values = findTop20StockValues(date).values();
-        List<StockValueRankingResponse> responses = new ArrayList<>();
-        for (StockValueResponse value : values) {
-            StockTicker stockTicker = stockTickerRepository.findByCode(value.code())
-                    .orElseThrow(StockTickerNotFoundException::new);
-            StockPriceResponse price = stockPriceFindService.findStockPriceAtDate(stockTicker, value.date());
-            responses.add(StockValueRankingResponse.of(price, value));
-        }
-        return new StockValuesRankingResponse(responses);
-    }
-
-    private StockValuesResponse findTop20StockValues(String date) {
-        RestTemplate restTemplate = new RestTemplate();
-        String url = UriComponentsBuilder.fromHttpUrl("http://localhost:8000/stock-values/ranking?date=" + date)
-                .toUriString();
-        return restTemplate.getForObject(url, StockValuesResponse.class);
-    }
-
 }
